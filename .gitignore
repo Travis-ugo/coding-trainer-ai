@@ -1,0 +1,17 @@
+# Environment & Local Configuration Secrets
+.env
+.env.*
+coding_trainer_ai/resources/ai_config.json
+coding_trainer_ai/resources/quiz_progress.json
+coding_trainer_ai/resources/srs_state.json
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# OS / IDE Artifacts
+.DS_Store
+.vscode/
+.idea/
