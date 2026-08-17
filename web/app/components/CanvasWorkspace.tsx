@@ -171,13 +171,6 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   <p className="text-xs text-[#888888] mt-1">{task.details}</p>
                 </div>
               ))}
-
-              <button
-                onClick={() => alert(`🎉 Daily Routine Completed! Streak updated to ${(analyticsData?.streak_days || 14) + 1} Days!`)}
-                className="w-full btn-next-primary text-xs py-3 rounded-md font-bold mt-2"
-              >
-                Complete Daily 15-Min Routine
-              </button>
             </div>
           </div>
         )}

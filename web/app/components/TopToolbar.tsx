@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MousePointer, Layout, Code, Bot, Play, Sparkles, Layers } from "lucide-react";
+import { MousePointer, Layout, Code, Bot, Sparkles, Layers } from "lucide-react";
 
 interface TopToolbarProps {
   activeTool: string;
@@ -96,7 +96,7 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({
         </button>
       </div>
 
-      {/* Right Actions & Next.js Box Rectangle Deploy Button */}
+      {/* Right Actions Status Badge */}
       <div className="flex items-center gap-3">
         {aiActive ? (
           <div className="flex items-center gap-1.5 bg-[#00e599]/10 text-[#00e599] border border-[#00e599]/30 px-2.5 py-1 rounded-md text-xs font-medium">
@@ -108,14 +108,6 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({
             Offline Mode
           </div>
         )}
-
-        <button
-          onClick={() => setActiveTool("routine")}
-          className="btn-next-primary text-xs px-3.5 py-1.5 flex items-center gap-1.5 hover:opacity-90 transition-opacity"
-        >
-          <Play className="w-3.5 h-3.5 fill-current" />
-          <span>Run Session</span>
-        </button>
       </div>
     </header>
   );
