@@ -19,21 +19,10 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
 }) => {
   const { modulesData } = useTrainerContext();
 
-  const fallbackModules = [
-    { id: "py_mod_01", title: "Variables & Memory Models" },
-    { id: "py_mod_02", title: "Conditionals & Control Flow" },
-    { id: "py_mod_03", title: "Loops & Iterators" },
-    { id: "py_mod_04", title: "Data Structures & Hash Maps" },
-    { id: "py_mod_05", title: "Functions & LEGB Scope" },
-    { id: "py_mod_06", title: "Comprehensions & Generators" },
-    { id: "py_mod_07", title: "Error Handling & Exceptions" },
-    { id: "py_mod_08", title: "Object-Oriented Classes" },
-    { id: "py_mod_09", title: "Standard Library & File I/O" },
-  ];
-
-  const modules = modulesData && modulesData.length > 0
-    ? modulesData.map(m => ({ id: m.id, title: m.title.split(":")[1]?.trim() || m.title }))
-    : fallbackModules;
+  const modules = (modulesData || []).map((m) => ({
+    id: m.id,
+    title: m.title.includes(":") ? m.title.split(":")[1]?.trim() || m.title : m.title,
+  }));
 
   return (
     <aside className="w-64 bg-[#0a0a0a] border-r border-[#222222] flex flex-col h-[calc(100vh-3.5rem)] select-none shrink-0">

@@ -15,6 +15,9 @@ from coding_trainer_ai.ai_robotics import VirtualROS2Sandbox
 from coding_trainer_ai.python_trainer import PythonCurriculum
 
 
+from coding_trainer_ai.progress import load_user_progress
+
+
 class TrainerAPIRequestHandler(http.server.BaseHTTPRequestHandler):
 
     analytics_engine = GradeAnalyticsEngine()
@@ -53,21 +56,12 @@ class TrainerAPIRequestHandler(http.server.BaseHTTPRequestHandler):
             self._set_headers(200)
             self.wfile.write(json.dumps(modules).encode("utf-8"))
 
-        elif self.path == "/api/analytics":
-            # Load real scores from progress file or defaults
-            scores = {
-                "py_mod_01": 85.0,
-                "py_mod_02": 78.0,
-                "py_mod_03": 72.0,
-                "py_mod_04": 65.0,
-                "py_mod_05": 70.0,
-                "dsa_two_pointers": 75.0,
-                "math_se3": 72.0,
-                "kalman_filter": 55.0,
-                "pytorch_autograd": 62.0,
-                "ros2_pubsub": 74.0,
-            }
-            analytics = self.analytics_engine.generate_analytics(scores)
+        elif self.path.startswith("/api/analytics"):
+            prog = load_user_progress()
+            scores = prog.get("scores", {})
+            user_name = prog.get("user_name", "Student")
+            background = prog.get("background", "Non-CS Candidate")
+            analytics = self.analytics_engine.generate_analytics(scores, user_name=user_name, background=background)
             response = {
                 "user_name": analytics.user_name,
                 "background": analytics.background,

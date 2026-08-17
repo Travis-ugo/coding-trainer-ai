@@ -19,6 +19,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
     routineData,
     flashcardDecks,
     ros2Data,
+    loading,
+    error,
     rateFlashcard,
     evaluateSyntax,
     askGemini,
@@ -32,32 +34,22 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   // Derive Active Deck
   const activeDeckId = selectedDeckId || (flashcardDecks[0]?.id ?? "");
 
-  // Module Templates fallback
-  const fallbackTemplates: Record<string, { title: string; code: string }> = {
-    py_mod_01: {
-      title: "Module 1: Variables & Memory Models",
-      code: "def calculate_memory_address(obj):\n    # Return integer memory address id of object\n    return id(obj)",
-    },
-    py_mod_02: {
-      title: "Module 2: Conditionals & Control Flow",
-      code: "def check_distinction_threshold(score):\n    if score >= 70.0:\n        return 'DISTINCTION'\n    elif score >= 60.0:\n        return 'MERIT'\n    elif score >= 50.0:\n        return 'PASS'\n    return 'FAIL'",
-    },
-  };
-
   const dynamicModule = modulesData.find((m) => m.id === selectedModule);
   const activeModuleData = dynamicModule
     ? { title: dynamicModule.title, code: dynamicModule.syntax_guide }
-    : fallbackTemplates[selectedModule] || fallbackTemplates["py_mod_01"];
+    : { title: "Python Syntax Gym", code: "# Select a module from the left sidebar to begin AST syntax drills" };
 
   // Syntax Gym Code State keyed by active module
   const [syntaxCode, setSyntaxCode] = useState(activeModuleData.code);
   const [syntaxFeedback, setSyntaxFeedback] = useState<SyntaxEvalResult | null>(null);
   const [syntaxEvaluating, setSyntaxEvaluating] = useState(false);
+  const [syntaxError, setSyntaxError] = useState<string | null>(null);
 
   // Gemini AI Tutor State
   const [aiQuery, setAiQuery] = useState("");
   const [aiResponse, setAiResponse] = useState<GeminiResponse | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   // Flashcards Logic
   const currentDeck = flashcardDecks.find((d) => d.id === activeDeckId) || flashcardDecks[0];
@@ -66,7 +58,11 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
   const handleNextFlashcard = async (rating: number) => {
     if (currentCard) {
-      await rateFlashcard(currentCard.card_id, rating);
+      try {
+        await rateFlashcard(currentCard.card_id, rating);
+      } catch (err: unknown) {
+        console.error("Failed to rate card:", err);
+      }
     }
     setFlashcardFlipped(false);
     setFlashcardIndex((prev) => prev + 1);
@@ -74,22 +70,42 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
   const handleEvaluateSyntax = async () => {
     setSyntaxEvaluating(true);
-    const res = await evaluateSyntax(syntaxCode);
-    setSyntaxFeedback(res);
-    setSyntaxEvaluating(false);
+    setSyntaxError(null);
+    try {
+      const res = await evaluateSyntax(syntaxCode);
+      setSyntaxFeedback(res);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to evaluate syntax";
+      setSyntaxError(msg);
+    } finally {
+      setSyntaxEvaluating(false);
+    }
   };
 
   const handleAskGemini = async () => {
     if (!aiQuery) return;
     setAiLoading(true);
-    const res = await askGemini(aiQuery);
-    setAiResponse(res);
-    setAiLoading(false);
+    setAiError(null);
+    try {
+      const res = await askGemini(aiQuery);
+      setAiResponse(res);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to get AI response";
+      setAiError(msg);
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   return (
     <main className="flex-1 bg-[#000000] overflow-y-auto p-8 relative flex justify-center items-start">
       <div className="w-full max-w-4xl space-y-6">
+        {error && (
+          <div className="bg-[#7f1d1d]/30 border border-[#ef4444] text-[#ef4444] p-3.5 rounded-md text-xs font-mono">
+            ⚠️ {error}
+          </div>
+        )}
+
         {/* TOOL 1: Real Grade Analytics Dashboard */}
         {activeTool === "analytics" && (
           <div className="space-y-5">
@@ -104,27 +120,33 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 </p>
               </div>
               <div className="bg-[#111111] border border-[#00e599]/30 text-[#00e599] font-bold text-xs px-3.5 py-1.5 rounded-md">
-                {analyticsData?.predicted_grade || "🏆 DISTINCTION (72.5%)"}
+                {analyticsData?.predicted_grade || (loading ? "Syncing..." : "--")}
               </div>
             </div>
 
             <div className="bg-[#0a0a0a] border border-[#222222] rounded-lg p-6 space-y-4">
-              {(analyticsData?.topic_grades || []).map((item, idx) => (
-                <div key={idx} className="space-y-1.5">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-[#e2e8f0] font-medium">{item.topic_name}</span>
-                    <span style={{ color: item.color_hex }} className="font-semibold font-mono">
-                      {item.score_percentage}% ({item.grade_label})
-                    </span>
+              {analyticsData?.topic_grades && analyticsData.topic_grades.length > 0 ? (
+                analyticsData.topic_grades.map((item, idx) => (
+                  <div key={idx} className="space-y-1.5">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-[#e2e8f0] font-medium">{item.topic_name}</span>
+                      <span style={{ color: item.color_hex }} className="font-semibold font-mono">
+                        {item.score_percentage}% ({item.grade_label})
+                      </span>
+                    </div>
+                    <div className="w-full bg-[#111111] h-2 rounded-full overflow-hidden border border-[#222222]">
+                      <div
+                        className="h-full rounded-full transition-all duration-300"
+                        style={{ width: `${item.score_percentage}%`, backgroundColor: item.color_hex }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full bg-[#111111] h-2 rounded-full overflow-hidden border border-[#222222]">
-                    <div
-                      className="h-full rounded-full transition-all duration-300"
-                      style={{ width: `${item.score_percentage}%`, backgroundColor: item.color_hex }}
-                    />
-                  </div>
+                ))
+              ) : (
+                <div className="text-xs text-[#888888] text-center py-6">
+                  {loading ? "Loading analytics..." : "No analytics data available"}
                 </div>
-              ))}
+              )}
             </div>
           </div>
         )}
@@ -313,6 +335,12 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 )}
               </button>
 
+              {syntaxError && (
+                <div className="bg-[#7f1d1d]/30 border border-[#ef4444] p-3.5 rounded-md text-xs font-mono text-[#ef4444]">
+                  ❌ {syntaxError}
+                </div>
+              )}
+
               {syntaxFeedback && (
                 <div className="bg-[#111111] border border-[#2e2e2e] p-3.5 rounded-md text-xs font-mono text-[#e2e8f0] space-y-1">
                   <div className="font-bold text-white">
@@ -361,6 +389,12 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   <span>Ask Gemini Socratic AI</span>
                 )}
               </button>
+
+              {aiError && (
+                <div className="bg-[#7f1d1d]/30 border border-[#ef4444] p-3.5 rounded-md text-xs font-mono text-[#ef4444]">
+                  ❌ {aiError}
+                </div>
+              )}
 
               {aiResponse && (
                 <div className="bg-[#111111] border border-[#2e2e2e] p-4 rounded-md text-xs font-mono text-[#e2e8f0] space-y-3">

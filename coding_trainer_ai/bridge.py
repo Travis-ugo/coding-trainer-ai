@@ -31,19 +31,12 @@ def handle_bridge_request(endpoint: str, payload: Dict[str, Any]) -> Dict[str, A
 
     elif endpoint == "analytics":
         engine = GradeAnalyticsEngine()
-        scores = payload.get("scores", {
-            "py_mod_01": 85.0,
-            "py_mod_02": 78.0,
-            "py_mod_03": 72.0,
-            "py_mod_04": 65.0,
-            "py_mod_05": 70.0,
-            "dsa_two_pointers": 75.0,
-            "math_se3": 72.0,
-            "kalman_filter": 55.0,
-            "pytorch_autograd": 62.0,
-            "ros2_pubsub": 74.0,
-        })
-        analytics = engine.generate_analytics(scores)
+        from coding_trainer_ai.progress import load_user_progress
+        prog = load_user_progress()
+        scores = payload.get("scores", prog.get("scores", {}))
+        user_name = payload.get("user_name", prog.get("user_name", "Student"))
+        background = payload.get("background", prog.get("background", "Non-CS Candidate"))
+        analytics = engine.generate_analytics(scores, user_name=user_name, background=background)
         return {
             "user_name": analytics.user_name,
             "background": analytics.background,
