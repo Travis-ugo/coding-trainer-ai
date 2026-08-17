@@ -109,7 +109,10 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({
           </div>
         )}
 
-        <button className="btn-next-primary text-xs px-3.5 py-1.5 flex items-center gap-1.5">
+        <button
+          onClick={() => setActiveTool("routine")}
+          className="btn-next-primary text-xs px-3.5 py-1.5 flex items-center gap-1.5 hover:opacity-90 transition-opacity"
+        >
           <Play className="w-3.5 h-3.5 fill-current" />
           <span>Run Session</span>
         </button>

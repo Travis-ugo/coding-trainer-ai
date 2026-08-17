@@ -1,30 +1,10 @@
 import { NextResponse } from "next/server";
-import { execSync } from "child_process";
+import { runPythonBridge } from "../pythonBridge";
 
 export async function GET() {
   try {
-    const output = execSync(
-      `python3 -c "
-from coding_trainer_ai.analytics_studio import GradeAnalyticsEngine
-import json
-engine = GradeAnalyticsEngine()
-scores = {'py_mod_01': 85.0, 'py_mod_02': 78.0, 'py_mod_03': 72.0, 'py_mod_04': 65.0, 'py_mod_05': 70.0, 'dsa_two_pointers': 75.0, 'math_se3': 72.0, 'kalman_filter': 55.0, 'pytorch_autograd': 62.0, 'ros2_pubsub': 74.0}
-analytics = engine.generate_analytics(scores)
-res = {
-    'user_name': analytics.user_name,
-    'background': analytics.background,
-    'overall_percentage': analytics.overall_percentage,
-    'predicted_grade': analytics.predicted_grade,
-    'distinction_badges_count': analytics.distinction_badges_count,
-    'streak_days': analytics.streak_days,
-    'topic_grades': [{'topic_id': g.topic_id, 'topic_name': g.topic_name, 'score_percentage': g.score_percentage, 'grade_label': g.grade_label, 'color_hex': g.color_hex} for g in analytics.topic_grades]
-}
-print(json.dumps(res))
-"`,
-      { cwd: "/Users/travis/Software/coding-trainer-ai" }
-    ).toString();
-
-    return NextResponse.json(JSON.parse(output));
+    const data = await runPythonBridge("/api/analytics", "GET");
+    return NextResponse.json(data);
   } catch {
     return NextResponse.json({
       user_name: "MSc Student",

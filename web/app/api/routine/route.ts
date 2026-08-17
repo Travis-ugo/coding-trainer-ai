@@ -1,25 +1,10 @@
 import { NextResponse } from "next/server";
-import { execSync } from "child_process";
+import { runPythonBridge } from "../pythonBridge";
 
 export async function GET() {
   try {
-    const output = execSync(
-      `python3 -c "
-from coding_trainer_ai.analytics_studio import DailyRoutineGenerator
-import json
-gen = DailyRoutineGenerator()
-routine = gen.generate_daily_routine()
-res = {
-    'date_str': routine.date_str,
-    'total_minutes': routine.total_minutes,
-    'tasks': [{'title': t.title, 'duration_minutes': t.duration_minutes, 'task_type': t.task_type, 'details': t.details} for t in routine.tasks]
-}
-print(json.dumps(res))
-"`,
-      { cwd: "/Users/travis/Software/coding-trainer-ai" }
-    ).toString();
-
-    return NextResponse.json(JSON.parse(output));
+    const data = await runPythonBridge("/api/routine", "GET");
+    return NextResponse.json(data);
   } catch {
     return NextResponse.json({
       date_str: "2026-08-17",

@@ -14,6 +14,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   selectedModule,
 }) => {
   const {
+    modulesData,
     analyticsData,
     routineData,
     flashcardDecks,
@@ -31,8 +32,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   // Derive Active Deck
   const activeDeckId = selectedDeckId || (flashcardDecks[0]?.id ?? "");
 
-  // Module Templates for Syntax Gym
-  const moduleTemplates: Record<string, { title: string; code: string }> = {
+  // Module Templates fallback
+  const fallbackTemplates: Record<string, { title: string; code: string }> = {
     py_mod_01: {
       title: "Module 1: Variables & Memory Models",
       code: "def calculate_memory_address(obj):\n    # Return integer memory address id of object\n    return id(obj)",
@@ -41,37 +42,12 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
       title: "Module 2: Conditionals & Control Flow",
       code: "def check_distinction_threshold(score):\n    if score >= 70.0:\n        return 'DISTINCTION'\n    elif score >= 60.0:\n        return 'MERIT'\n    elif score >= 50.0:\n        return 'PASS'\n    return 'FAIL'",
     },
-    py_mod_03: {
-      title: "Module 3: Loops & Iterators (Binary Search)",
-      code: "def binary_search(arr, target):\n    low, high = 0, len(arr) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return -1",
-    },
-    py_mod_04: {
-      title: "Module 4: Data Structures & Hash Maps",
-      code: "def two_sum_hashmap(nums, target):\n    seen = {}\n    for i, num in enumerate(nums):\n        diff = target - num\n        if diff in seen:\n            return [seen[diff], i]\n        seen[num] = i\n    return []",
-    },
-    py_mod_05: {
-      title: "Module 5: Functions & LEGB Scope",
-      code: "def closure_multiplier(factor):\n    def multiply(number):\n        return number * factor\n    return multiply",
-    },
-    py_mod_06: {
-      title: "Module 6: Comprehensions & Generators",
-      code: "def get_even_squares(nums):\n    return [x**2 for x in nums if x % 2 == 0]",
-    },
-    py_mod_07: {
-      title: "Module 7: Error Handling & Exceptions",
-      code: "def safe_divide(a, b):\n    try:\n        return a / b\n    except ZeroDivisionError:\n        return float('inf')",
-    },
-    py_mod_08: {
-      title: "Module 8: Object-Oriented Classes",
-      code: "class RobotArmNode:\n    def __init__(self, name):\n        self.name = name\n        self.joint_angles = [0.0, 0.0]\n\n    def set_joints(self, theta1, theta2):\n        self.joint_angles = [theta1, theta2]",
-    },
-    py_mod_09: {
-      title: "Module 9: Standard Library & File I/O",
-      code: "import os\n\ndef list_python_files(path):\n    return [f for f in os.listdir(path) if f.endswith('.py')]",
-    },
   };
 
-  const activeModuleData = moduleTemplates[selectedModule] || moduleTemplates["py_mod_01"];
+  const dynamicModule = modulesData.find((m) => m.id === selectedModule);
+  const activeModuleData = dynamicModule
+    ? { title: dynamicModule.title, code: dynamicModule.syntax_guide }
+    : fallbackTemplates[selectedModule] || fallbackTemplates["py_mod_01"];
 
   // Syntax Gym Code State keyed by active module
   const [syntaxCode, setSyntaxCode] = useState(activeModuleData.code);

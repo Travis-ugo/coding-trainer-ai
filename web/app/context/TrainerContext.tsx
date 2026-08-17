@@ -67,11 +67,21 @@ export interface GeminiResponse {
   socratic_question: string;
 }
 
+export interface ModuleItem {
+  id: string;
+  title: string;
+  summary: string;
+  non_cs_analogy: string;
+  syntax_guide: string;
+  order: number;
+}
+
 interface TrainerContextType {
   activeTool: string;
   setActiveTool: (tool: string) => void;
   selectedModule: string;
   setSelectedModule: (mod: string) => void;
+  modulesData: ModuleItem[];
   analyticsData: AnalyticsData;
   routineData: RoutineData;
   flashcardDecks: FlashcardDeck[];
@@ -192,11 +202,20 @@ export const TrainerProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [routineData, setRoutineData] = useState<RoutineData>(initialRoutine);
   const [flashcardDecks, setFlashcardDecks] = useState<FlashcardDeck[]>(initialDecks);
   const [ros2Data, setRos2Data] = useState<ROS2Data>(initialRos2);
+  const [modulesData, setModulesData] = useState<ModuleItem[]>([]);
 
   // Single Background Data Sync on Mount (No UI Flashing)
   useEffect(() => {
     async function syncBackendData() {
       try {
+        const resModules = await fetch("/api/modules");
+        if (resModules.ok) {
+          const data = await resModules.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setModulesData(data);
+          }
+        }
+
         const resAnalytics = await fetch("/api/analytics");
         if (resAnalytics.ok) {
           const data = await resAnalytics.json();
@@ -288,6 +307,7 @@ export const TrainerProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setActiveTool,
         selectedModule,
         setSelectedModule,
+        modulesData,
         analyticsData,
         routineData,
         flashcardDecks,

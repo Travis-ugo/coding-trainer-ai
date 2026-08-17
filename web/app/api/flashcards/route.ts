@@ -1,23 +1,10 @@
 import { NextResponse } from "next/server";
-import { execSync } from "child_process";
+import { runPythonBridge } from "../pythonBridge";
 
 export async function GET() {
   try {
-    const output = execSync(
-      `python3 -c "
-from coding_trainer_ai.srs import DeckRepository
-import json
-repo = DeckRepository()
-decks_data = []
-for deck_id, deck in repo.decks.items():
-    cards_data = [{'card_id': c.card_id, 'prompt': c.prompt, 'answer': c.answer, 'analogy': c.analogy, 'repetition_number': c.repetition_number, 'interval_days': c.interval_days} for c in deck.cards]
-    decks_data.append({'id': deck.deck_id, 'title': deck.title, 'cards': cards_data})
-print(json.dumps(decks_data))
-"`,
-      { cwd: "/Users/travis/Software/coding-trainer-ai" }
-    ).toString();
-
-    return NextResponse.json(JSON.parse(output));
+    const data = await runPythonBridge("/api/flashcards", "GET");
+    return NextResponse.json(data);
   } catch {
     return NextResponse.json([
       {
@@ -57,27 +44,8 @@ print(json.dumps(decks_data))
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const cardId = body.card_id;
-    const rating = body.rating || 4;
-
-    const output = execSync(
-      `python3 -c "
-from coding_trainer_ai.srs import DeckRepository, SM2Engine
-import json
-repo = DeckRepository()
-sm2 = SM2Engine()
-updated = None
-for deck in repo.decks.values():
-    for card in deck.cards:
-        if card.card_id == '${cardId}':
-            updated = sm2.calculate_next_interval(card, ${rating})
-            break
-print(json.dumps({'card_id': '${cardId}', 'interval_days': updated.interval_days if updated else 1, 'easiness_factor': updated.easiness_factor if updated else 2.5}))
-"`,
-      { cwd: "/Users/travis/Software/coding-trainer-ai" }
-    ).toString();
-
-    return NextResponse.json(JSON.parse(output));
+    const data = await runPythonBridge("/api/flashcards", "POST", body);
+    return NextResponse.json(data);
   } catch {
     return NextResponse.json({ card_id: "card", interval_days: 1, easiness_factor: 2.5 });
   }

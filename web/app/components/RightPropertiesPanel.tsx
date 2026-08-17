@@ -7,6 +7,16 @@ import { Award, Zap, Clock, CheckCircle2, ChevronRight } from "lucide-react";
 export const RightPropertiesPanel: React.FC = () => {
   const { analyticsData } = useTrainerContext();
 
+  const distinctionBadges = (analyticsData?.topic_grades || [])
+    .filter((g) => g.score_percentage >= 70)
+    .map((g) => {
+      const parts = g.topic_name.split(" ");
+      return parts.length > 2 ? `${parts[0]} ${parts[1]}` : g.topic_name;
+    });
+  const displayBadges = distinctionBadges.length > 0
+    ? distinctionBadges
+    : ["Python Memory", "SE(3) Math", "Two Pointers", "ROS 2 Nodes", "PyTorch Autograd", "Written Exam"];
+
   return (
     <aside className="w-72 bg-[#0a0a0a] border-l border-[#222222] flex flex-col h-[calc(100vh-3.5rem)] select-none shrink-0">
       {/* Dashboard Inspector Header */}
@@ -45,18 +55,11 @@ export const RightPropertiesPanel: React.FC = () => {
         {/* Distinction Badges Showcase */}
         <div>
           <div className="text-[10px] font-semibold text-[#666666] uppercase tracking-wider mb-2 flex items-center justify-between">
-            <span>Distinction Badges ({analyticsData?.distinction_badges_count || 8} Earned)</span>
+            <span>Distinction Badges ({analyticsData?.distinction_badges_count ?? displayBadges.length} Earned)</span>
             <Award className="w-3.5 h-3.5 text-[#00e599]" />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            {[
-              "Python Memory",
-              "SE(3) Math",
-              "Two Pointers",
-              "ROS 2 Nodes",
-              "PyTorch Autograd",
-              "Written Exam",
-            ].map((badge, idx) => (
+            {displayBadges.map((badge, idx) => (
               <div
                 key={idx}
                 className="bg-[#111111] border border-[#222222] p-2 rounded-md text-[11px] flex items-center gap-1.5 text-white"

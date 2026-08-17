@@ -12,6 +12,9 @@ from coding_trainer_ai.ai_engine import GeminiAIEngine
 from coding_trainer_ai.ai_robotics import VirtualROS2Sandbox
 
 
+from coding_trainer_ai.python_trainer import PythonCurriculum
+
+
 class TrainerAPIRequestHandler(http.server.BaseHTTPRequestHandler):
 
     analytics_engine = GradeAnalyticsEngine()
@@ -21,6 +24,7 @@ class TrainerAPIRequestHandler(http.server.BaseHTTPRequestHandler):
     compiler_exam = NoCompilerExamMode()
     gemini_engine = GeminiAIEngine()
     ros2_sandbox = VirtualROS2Sandbox()
+    curriculum = PythonCurriculum()
 
     def _set_headers(self, status=200):
         self.send_response(status)
@@ -34,7 +38,22 @@ class TrainerAPIRequestHandler(http.server.BaseHTTPRequestHandler):
         self._set_headers(200)
 
     def do_GET(self):
-        if self.path == "/api/analytics":
+        if self.path == "/api/modules":
+            modules = [
+                {
+                    "id": m.id,
+                    "title": m.title,
+                    "summary": getattr(m, "summary", ""),
+                    "non_cs_analogy": getattr(m, "non_cs_analogy", ""),
+                    "syntax_guide": getattr(m, "syntax_guide", ""),
+                    "order": getattr(m, "order", 1),
+                }
+                for m in self.curriculum._modules
+            ]
+            self._set_headers(200)
+            self.wfile.write(json.dumps(modules).encode("utf-8"))
+
+        elif self.path == "/api/analytics":
             # Load real scores from progress file or defaults
             scores = {
                 "py_mod_01": 85.0,
@@ -131,7 +150,7 @@ class TrainerAPIRequestHandler(http.server.BaseHTTPRequestHandler):
         post_data = self.rfile.read(content_length).decode("utf-8") if content_length > 0 else "{}"
         body = json.loads(post_data) if post_data else {}
 
-        if self.path == "/api/syntax/evaluate":
+        if self.path in ("/api/syntax", "/api/syntax/evaluate"):
             code_str = body.get("code", "")
             target_output = body.get("target_output", "")
             res = self.compiler_exam.evaluate_no_compiler_submission(code_str, target_output)
@@ -144,7 +163,7 @@ class TrainerAPIRequestHandler(http.server.BaseHTTPRequestHandler):
             self._set_headers(200)
             self.wfile.write(json.dumps(response).encode("utf-8"))
 
-        elif self.path == "/api/ai/socratic":
+        elif self.path in ("/api/ai", "/api/ai/socratic"):
             prompt = body.get("prompt", "")
             res = self.gemini_engine.ask_socratic_guidance(prompt)
             response = {
@@ -155,7 +174,7 @@ class TrainerAPIRequestHandler(http.server.BaseHTTPRequestHandler):
             self._set_headers(200)
             self.wfile.write(json.dumps(response).encode("utf-8"))
 
-        elif self.path == "/api/flashcards/rate":
+        elif self.path in ("/api/flashcards", "/api/flashcards/rate"):
             card_id = body.get("card_id", "")
             rating = int(body.get("rating", 4))
             # Find card across decks and update SM-2 interval

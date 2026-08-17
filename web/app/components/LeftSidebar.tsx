@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Folder, FileCode, Cpu, Layers, Sparkles, BookOpen, Clock, ChevronRight } from "lucide-react";
+import { useTrainerContext } from "../context/TrainerContext";
 
 interface LeftSidebarProps {
   activeTool: string;
@@ -16,7 +17,9 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   selectedModule,
   setSelectedModule,
 }) => {
-  const modules = [
+  const { modulesData } = useTrainerContext();
+
+  const fallbackModules = [
     { id: "py_mod_01", title: "Variables & Memory Models" },
     { id: "py_mod_02", title: "Conditionals & Control Flow" },
     { id: "py_mod_03", title: "Loops & Iterators" },
@@ -27,6 +30,10 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
     { id: "py_mod_08", title: "Object-Oriented Classes" },
     { id: "py_mod_09", title: "Standard Library & File I/O" },
   ];
+
+  const modules = modulesData && modulesData.length > 0
+    ? modulesData.map(m => ({ id: m.id, title: m.title.split(":")[1]?.trim() || m.title }))
+    : fallbackModules;
 
   return (
     <aside className="w-64 bg-[#0a0a0a] border-r border-[#222222] flex flex-col h-[calc(100vh-3.5rem)] select-none shrink-0">

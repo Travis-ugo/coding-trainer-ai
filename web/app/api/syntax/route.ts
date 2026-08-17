@@ -1,24 +1,11 @@
 import { NextResponse } from "next/server";
-import { execSync } from "child_process";
+import { runPythonBridge } from "../pythonBridge";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const code = (body.code || "").replace(/"/g, '\\"');
-
-    const output = execSync(
-      `python3 -c "
-from coding_trainer_ai.syntax_drills import NoCompilerExamMode
-import json
-exam = NoCompilerExamMode()
-code_str = '''${code}'''
-res = exam.evaluate_no_compiler_submission(code_str, '')
-print(json.dumps({'passed': res.passed, 'score': res.score, 'ast_valid': res.ast_valid, 'feedback': res.feedback}))
-"`,
-      { cwd: "/Users/travis/Software/coding-trainer-ai" }
-    ).toString();
-
-    return NextResponse.json(JSON.parse(output));
+    const data = await runPythonBridge("/api/syntax", "POST", body);
+    return NextResponse.json(data);
   } catch {
     return NextResponse.json({
       passed: true,
