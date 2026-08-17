@@ -63,14 +63,14 @@ def print_banner():
     ai_status = "✨ Live Gemini AI Active" if ai_engine.config.is_active else "⚡ Offline Mode (Press K to add Gemini API key)"
 
     print("\n" + "=" * 72)
-    print(" 🧠  CODING TRAINER AI - UK MSc Studio & Gemini AI Engine")
-    print(" 🎓  Bridging Non-CS Backgrounds to UK Master's Distinction Level")
+    print(" 🧠  CODING TRAINER AI - Master's Studio & Gemini AI Engine")
+    print(" 🎓  Bridging Non-CS Backgrounds to Master's Degree Distinction")
     print("=" * 72)
     print(f" Status: {ai_status}")
     print(" Active learning: Gemini Socratic Tutor, UK exam simulator,")
     print(" real-time timers, grade heatmaps, Virtual ROS 2, SM-2 SRS.")
     print("-" * 72)
-    print(" UK MSc Marking Scale:")
+    print(" Master's Degree Marking Scale:")
     print("   🏆 Distinction : 70% - 100%")
     print("   📜 Merit       : 60% - 69%")
     print("   ✅ Pass        : 50% - 59% (Minimum threshold to unlock next level)")
@@ -106,11 +106,12 @@ def run_analytics_studio_hub():
 
     while True:
         print("\n" + "=" * 60)
-        print(" 💻 GRADE ANALYTICS, DAILY ROUTINE & WEB STUDIO 🇬🇧")
+        print(" 💻 GRADE ANALYTICS, DAILY ROUTINE & WEB STUDIO 🎓")
         print("=" * 60)
-        print("   [1] 📊 View UK MSc Predicted Grade Heatmap & Readiness Analytics")
+        print("   [1] 📊 View Predicted Grade Heatmap & Readiness Analytics")
         print("   [2] ⏱️ Launch Daily 15-Minute Micro-Study Routine")
-        print("   [3] 🌐 Generate & Export Web Studio Dashboard (HTML/CSS/JS)")
+        print("   [3] 🌐 Export HTML Web Studio Dashboard")
+        print("   [4] 🚀 Start Live Local Web Server (http://localhost:8080)")
         print("   [B] Back to Main Menu")
 
         choice = input("\nSelect option: ").strip().lower()
@@ -144,9 +145,19 @@ def run_analytics_studio_hub():
             print("\n" + "=" * 60)
             print(" 🌐 WEB STUDIO DASHBOARD HTML EXPORTED SUCCESSFULLY!")
             print(f" File Saved To: {saved_path}")
-            print(" Open this HTML file in any browser for an interactive web dashboard.")
             print("=" * 60)
             input("\nPress Enter to continue...")
+        elif choice == "4":
+            analytics = analytics_engine.generate_analytics(quiz_manager.progress.module_scores)
+            routine = routine_gen.generate_daily_routine()
+            out_file = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "resources",
+                "web_studio.html",
+            )
+            saved_path = web_studio.export_html_file(analytics, routine, out_file)
+            web_studio.start_local_server(saved_path, port=8080)
+            input("\nPress Enter to return...")
 
 
 def run_uk_exam_studio_hub():
@@ -156,11 +167,11 @@ def run_uk_exam_studio_hub():
 
     while True:
         print("\n" + "=" * 60)
-        print(" 📝 UK MSc EXAM & COURSEWORK REPORT STUDIO 🇬🇧")
+        print(" 📝 MASTER'S EXAM & COURSEWORK REPORT STUDIO 🎓")
         print("=" * 60)
-        print("   [1] 📝 Take 2-Hour Timed UK Exam Simulator (100 Marks)")
-        print("   [2] 📄 Generate UK Master's LaTeX Report Template & Plots")
-        print("   [3] 💡 Consult Non-CS Friendly Socratic AI Tutor")
+        print("   [1] 📝 Take 2-Hour Timed Exam Simulator (100 Marks)")
+        print("   [2] 📄 Generate LaTeX Report Template & Plots")
+        print("   [3] 💡 Consult Socratic AI Tutor")
         print("   [B] Back to Main Menu")
 
         choice = input("\nSelect option: ").strip().lower()
@@ -203,26 +214,26 @@ def run_uk_exam_simulator(exam_engine):
     res = exam_engine.evaluate_exam_submission(paper, user_answers, question_timings)
 
     print("\n" + "=" * 70)
-    print(f" 🎓 UK EXAMINATION EVALUATION RESULT: {res.uk_classification}")
+    print(f" 🎓 EXAMINATION EVALUATION RESULT: {res.uk_classification}")
     print(f"    Total Score: {res.total_score} / {res.max_marks} ({res.percentage:.1f}%)")
     print("-" * 70)
     print(f" ⏱️ PACING ANALYTICS & TIMING:")
     print(f"    Total Exam Duration  : {QuestionTimer.format_duration(res.total_duration_seconds)}")
     print(f"    Avg Time / Question  : {res.avg_seconds_per_question:.1f}s")
-    print(f"    UK Pacing Rating     : {res.pacing_rating}")
+    print(f"    Pacing Rating        : {res.pacing_rating}")
     print("=" * 70)
     print(" Section Breakdown:")
     for sec, sc in res.section_breakdown.items():
         print(f"   - {sec}: {sc:.1f} Marks")
     print("-" * 70)
-    print(f" 📖 UK Distinction Feedback Rubric:\n{res.upgrade_feedback}")
+    print(f" 📖 Distinction Feedback Rubric:\n{res.upgrade_feedback}")
     print("=" * 70)
     input("\nPress Enter to continue...")
 
 
 def run_latex_coursework_generator(report_gen):
     print("\n" + "=" * 60)
-    print(" 📄 UK MASTER'S LATEX COURSEWORK REPORT GENERATOR")
+    print(" 📄 MASTER'S LATEX COURSEWORK REPORT GENERATOR")
     print("=" * 60)
     title = input("Enter Report Title [default: Autonomous Robotics Evaluation]: ").strip()
     if not title:
@@ -241,7 +252,7 @@ def run_latex_coursework_generator(report_gen):
 
 def run_socratic_tutor_session(socratic_tutor):
     print("\n" + "=" * 60)
-    print(" 💡 NON-CS FRIENDLY SOCRATIC AI TUTOR")
+    print(" 💡 SOCRATIC AI TUTOR")
     print("=" * 60)
     query = input("What concept or code problem are you stuck on?\n> ").strip()
     if query:
@@ -354,10 +365,10 @@ def run_dsa_whiteboard_hub():
     while True:
         print("\n" + "=" * 60)
         print(" 🧩 DATA STRUCTURES & ALGORITHMS (DSA) MASTERY")
-        print(" 📝 UK STEP-BY-STEP WHITEBOARD MODE")
+        print(" 📝 STEP-BY-STEP WHITEBOARD MODE")
         print("=" * 60)
         print("   [1] 🧩 Browse DSA Problems by Pattern")
-        print("   [2] 📝 Launch Interactive 5-Step UK Whiteboard Mode")
+        print("   [2] 📝 Launch Interactive 5-Step Whiteboard Mode")
         print("   [B] Back to Main Menu")
 
         choice = input("\nSelect option: ").strip().lower()
@@ -377,7 +388,7 @@ def run_dsa_whiteboard_hub():
                 except ValueError:
                     print("Invalid selection.")
         elif choice == "2":
-            print("\nSelect problem for UK Whiteboard Mode:")
+            print("\nSelect problem for Whiteboard Mode:")
             for idx, p in enumerate(problems, 1):
                 print(f"   [{idx}] {p.title}")
 
@@ -398,7 +409,7 @@ def display_dsa_problem(problem):
     print("=" * 68)
     print(f"\n📜 STATEMENT:\n{problem.problem_statement}")
     print(f"\n💡 SAMPLE I/O:\n{problem.sample_input_output}")
-    print(f"\n🏛️ NON-CS ANALOGY:\n{problem.non_cs_analogy}")
+    print(f"\n🏛️ INTUITIVE ANALOGY:\n{problem.non_cs_analogy}")
     print(f"\n⚠️ EDGE CASES:\n" + "\n".join(f"  - {e}" for e in problem.edge_cases))
     print(f"\n⚙️ TIME COMPLEXITY:  {problem.time_complexity}")
     print(f"⚙️ SPACE COMPLEXITY: {problem.space_complexity}")
@@ -409,9 +420,9 @@ def display_dsa_problem(problem):
 
 def run_whiteboard_session(problem, evaluator):
     print("\n" + "=" * 70)
-    print(" 📝 UK UNIVERSITY STEP-BY-STEP WHITEBOARD PRESENTATION")
+    print(" 📝 STEP-BY-STEP WHITEBOARD PRESENTATION")
     print(f" Problem: {problem.title}")
-    print(" In UK Master's exams, candidates MUST document all 5 steps!")
+    print(" Candidates MUST document all 5 steps!")
     print("=" * 70)
 
     print("\n--- STEP 1 of 5: Input / Output Examples ---")
@@ -421,7 +432,7 @@ def run_whiteboard_session(problem, evaluator):
     s2 = input("List boundary edge cases (e.g. empty inputs, duplicates, single elements):\n> ").strip()
 
     print("\n--- STEP 3 of 5: Step-by-Step Logic in Plain English ---")
-    s3 = input("Explain your algorithmic strategy in plain English (Non-CS Analogy):\n> ").strip()
+    s3 = input("Explain your algorithmic strategy in plain English:\n> ").strip()
 
     print("\n--- STEP 4 of 5: Time & Space Complexity Analysis ---")
     s4 = input("Specify expected Big-O Time & Space Complexity (e.g. Time O(N), Space O(1)):\n> ").strip()
@@ -503,7 +514,7 @@ def display_lecture_and_run_cumulative_quiz(mod, all_modules, engine):
     print(f" 📖 LECTURE PHASE: {mod.title}")
     print("=" * 68)
     print(f"\n📌 SUMMARY:\n{mod.summary}")
-    print(f"\n🏛️ NON-CS INTUITIVE ANALOGY:\n{mod.non_cs_analogy}")
+    print(f"\n🏛️ INTUITIVE ANALOGY:\n{mod.non_cs_analogy}")
     print(f"\n💻 SYNTAX & EXAMPLES:\n{mod.syntax_guide}")
     print(f"\n⚠️ COMMON TRAPS & GOTCHAS:\n{mod.common_traps}")
     print("=" * 68)
@@ -549,7 +560,7 @@ def run_cumulative_quiz_for_module(mod, all_modules, engine):
 
         print(f"📖 Explanation: {result.explanation}")
         if result.distinction_tip:
-            print(f"🏆 UK MSc Distinction Tip: {result.distinction_tip}")
+            print(f"🏆 Distinction Tip: {result.distinction_tip}")
 
     stats = engine.get_stats()
     total_sec = sum(question_timings)
@@ -563,13 +574,13 @@ def run_cumulative_quiz_for_module(mod, all_modules, engine):
     print(f" ⏱️ PACING ANALYTICS & TIMING:")
     print(f"    Total Quiz Duration  : {QuestionTimer.format_duration(total_sec)}")
     print(f"    Avg Time / Question  : {avg_sec:.1f}s")
-    print(f"    UK Pacing Rating     : {pacing_rating}")
+    print(f"    Pacing Rating        : {pacing_rating}")
     print("-" * 70)
     
     if stats["percentage"] >= 70:
-        print("    🏆 DEGREE RESULT: UK DISTINCTION (70%+)")
+        print("    🏆 DEGREE RESULT: DISTINCTION (70%+)")
     elif stats["percentage"] >= 50:
-        print("    ✅ DEGREE RESULT: UK PASS (50%+)")
+        print("    ✅ DEGREE RESULT: PASS (50%+)")
     else:
         print("    ❌ DEGREE RESULT: FAIL (< 50% - Retake recommended)")
     print("=" * 70)
@@ -585,7 +596,7 @@ def run_dynamic_gated_quizzes_hub():
 
     while True:
         print("\n" + "=" * 60)
-        print(" 🎯 DYNAMIC GATED QUIZZES & UK PASS-MARK THRESHOLDS")
+        print(" 🎯 DYNAMIC GATED QUIZZES & PASS-MARK THRESHOLDS")
         print("=" * 60)
         print("   [1] 🎯 Take Dynamic Module Quiz (Randomized Variations)")
         print("   [2] 🏆 View Unlocked Modules & Distinction Badges")
@@ -672,7 +683,7 @@ def run_dynamic_quiz_attempt(module_id, generator, manager):
     print(f" ⏱️ PACING ANALYTICS & TIMING:")
     print(f"    Total Quiz Duration  : {QuestionTimer.format_duration(res.total_duration_seconds)}")
     print(f"    Avg Time / Question  : {res.avg_seconds_per_question:.1f}s")
-    print(f"    UK Pacing Rating     : {res.pacing_rating}")
+    print(f"    Pacing Rating        : {res.pacing_rating}")
     print("=" * 70)
 
     input("\nPress Enter to continue...")
@@ -843,7 +854,7 @@ def run_syntax_drills_hub():
             drills = bank.get_drills_by_type(DrillType.NO_COMPILER_EXAM)
             for d in drills:
                 print("\n" + "=" * 60)
-                print(f" 📝 UK WRITTEN EXAM PAPER: {d.title}")
+                print(f" 📝 WRITTEN EXAM PAPER: {d.title}")
                 print(f" 📜 Problem Description:\n{d.description}")
                 print("=" * 60)
                 print("\nWrite your full Python code solution below (NO IDE SQUIGGLES / NO HELPERS):")
@@ -937,7 +948,7 @@ def run_foundation_hub():
     engine = AnalogyEngine()
     stone = MathRosettaStone()
     print("\n" + "=" * 60)
-    print(" 🌉 NON-CS FOUNDATION & MATH ROSETTA STONE")
+    print(" 🌉 FOUNDATION & MATH ROSETTA STONE")
     print("=" * 60)
     for c in engine.get_all():
         print(f"   - {c.concept} ({c.non_cs_domain})")
@@ -951,14 +962,14 @@ def main():
         print("\n Main Menu Options:")
         print("   [1] 💻 Grade Analytics Dashboard, Daily Routine & Web Studio")
         print("   [2] 🐍 Learn Python Lectures & Cumulative Q&A (M1 -> MN)")
-        print("   [3] 📝 UK MSc Exam Simulator & LaTeX Coursework Studio 🇬🇧")
+        print("   [3] 📝 Exam Simulator & LaTeX Coursework Studio 🎓")
         print("   [4] 🤖 MSc AI & Robotics Tracks (Virtual ROS 2 & PyTorch)")
-        print("   [5] 🧩 DSA Pattern Tracks & 5-Step UK Whiteboard Mode")
-        print("   [6] 🎯 Dynamic Gated Quizzes & UK Pass Thresholds (Retake Mutations)")
+        print("   [5] 🧩 DSA Pattern Tracks & 5-Step Whiteboard Mode")
+        print("   [6] 🎯 Dynamic Gated Quizzes & Pass Thresholds (Retake Mutations)")
         print("   [7] ⚡ Active Syntax Memory & Anti-Copilot Drills (No-Compiler Exam)")
         print("   [8] 🎴 Flashcards & Spaced Repetition (SuperMemo SM-2 SRS)")
         print("   [9] 📄 Multi-Format Doc Ingestor (PDF, MD, HTML, Text)")
-        print("   [10] 🌉 Non-CS Intuitive Analogy & Rosetta Stone Engine")
+        print("   [10] 🌉 Intuitive Analogy & Rosetta Stone Engine")
         print("   [K] 🔑 Configure Gemini AI API Key")
         print("   [Q] Quit Application")
         print("-" * 72)
@@ -987,7 +998,7 @@ def main():
         elif choice == "k":
             configure_gemini_api_key()
         elif choice in ("q", "quit", "exit", "0"):
-            print("\nGoodbye! Keep building cumulative mastery for your UK MSc Distinction! 🎓\n")
+            print("\nGoodbye! Keep building cumulative mastery for your Master's Distinction! 🎓\n")
             break
         else:
             print("\nInvalid choice. Please select 1-10, K or Q.")

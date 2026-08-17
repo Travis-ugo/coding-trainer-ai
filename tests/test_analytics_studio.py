@@ -53,7 +53,7 @@ class TestAnalyticsStudio(unittest.TestCase):
         html = self.web_studio.generate_html_dashboard(analytics, routine)
         self.assertIn("<!DOCTYPE html>", html)
         self.assertIn("Coding Trainer AI", html)
-        self.assertIn("UK MSc Predicted Grade Heatmap", html)
+        self.assertIn("Topic-by-Topic Readiness Heatmap", html)
 
         out_file = os.path.join(self.temp_dir, "test_web_studio.html")
         saved_path = self.web_studio.export_html_file(analytics, routine, out_file)

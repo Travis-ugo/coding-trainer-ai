@@ -1,52 +1,4 @@
-import os
-import http.server
-import socketserver
-import threading
-import webbrowser
-from typing import Dict, Any, Optional
-from coding_trainer_ai.analytics_studio.models import StudentAnalytics, DailyRoutine
-
-
-class WebStudioServer:
-    """
-    Generates and serves the Ultra-Minimalist Flat Single-Page Web Studio Dashboard.
-    Adheres strictly to flat design principles: zero glassmorphism, zero box-shadows,
-    restrained monochromatic palette with 1 emerald accent (#10b981).
-    """
-
-    def generate_html_dashboard(self, analytics: StudentAnalytics, routine: DailyRoutine) -> str:
-        # Build Heatmap Rows
-        heatmap_html_rows = []
-        for grade in analytics.topic_grades:
-            topic = grade.topic_name
-            pct = grade.score_percentage
-            color = grade.color_hex
-            status = grade.grade_label.upper()
-            heatmap_html_rows.append(f"""
-                <div class="heatmap-row">
-                    <div class="heatmap-header">
-                        <span class="topic-name">{topic}</span>
-                        <span class="topic-pct" style="color: {color};">{pct:.1f}% ({status})</span>
-                    </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" style="width: {pct}%; background-color: {color};"></div>
-                    </div>
-                </div>
-            """)
-        heatmap_html_str = "\n".join(heatmap_html_rows)
-
-        # Build Routine Task Items
-        routine_html_items = []
-        for idx, task in enumerate(routine.tasks, 1):
-            routine_html_items.append(f"""
-                <div class="routine-card">
-                    <div class="routine-title">Task {idx}: {task.title} ({task.duration_minutes} Mins)</div>
-                    <div class="routine-desc">{task.details}</div>
-                </div>
-            """)
-        routine_html_str = "\n".join(routine_html_items)
-
-        html = f"""<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -56,13 +8,13 @@ class WebStudioServer:
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {{
+        * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-        }}
+        }
 
-        body {{
+        body {
             background-color: #0f172a;
             color: #f8fafc;
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -70,28 +22,28 @@ class WebStudioServer:
             padding: 24px;
             max-width: 1200px;
             margin: 0 auto;
-        }}
+        }
 
         /* Flat Header */
-        header {{
+        header {
             padding-bottom: 20px;
             border-bottom: 1px solid #334155;
             margin-bottom: 24px;
-        }}
+        }
 
-        h1 {{
+        h1 {
             font-size: 24px;
             font-weight: 700;
             color: #ffffff;
             margin-bottom: 4px;
-        }}
+        }
 
-        .subtitle {{
+        .subtitle {
             font-size: 14px;
             color: #94a3b8;
-        }}
+        }
 
-        .badge-distinction {{
+        .badge-distinction {
             display: inline-block;
             background-color: #10b981;
             color: #064e3b;
@@ -101,17 +53,17 @@ class WebStudioServer:
             border-radius: 4px;
             margin-left: 10px;
             text-transform: uppercase;
-        }}
+        }
 
         /* Minimalist Navigation Tabs */
-        .nav-tabs {{
+        .nav-tabs {
             display: flex;
             gap: 8px;
             border-bottom: 1px solid #334155;
             margin-bottom: 24px;
-        }}
+        }
 
-        .tab-btn {{
+        .tab-btn {
             background: none;
             border: none;
             color: #94a3b8;
@@ -122,129 +74,129 @@ class WebStudioServer:
             cursor: pointer;
             border-bottom: 2px solid transparent;
             transition: color 0.15s ease, border-color 0.15s ease;
-        }}
+        }
 
-        .tab-btn:hover {{
+        .tab-btn:hover {
             color: #f8fafc;
-        }}
+        }
 
-        .tab-btn.active {{
+        .tab-btn.active {
             color: #10b981;
             border-bottom-color: #10b981;
             font-weight: 600;
-        }}
+        }
 
         /* Tab Contents */
-        .tab-content {{
+        .tab-content {
             display: none;
-        }}
+        }
 
-        .tab-content.active {{
+        .tab-content.active {
             display: block;
-        }}
+        }
 
         /* Flat Cards */
-        .card {{
+        .card {
             background-color: #1e293b;
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 20px;
-        }}
+        }
 
-        .card-title {{
+        .card-title {
             font-size: 16px;
             font-weight: 600;
             color: #ffffff;
             margin-bottom: 16px;
             padding-bottom: 12px;
             border-bottom: 1px solid #334155;
-        }}
+        }
 
         /* Grade Analytics & Heatmap */
-        .analytics-grid {{
+        .analytics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 16px;
             margin-bottom: 24px;
-        }}
+        }
 
-        .stat-box {{
+        .stat-box {
             background-color: #0f172a;
             padding: 16px;
             border-radius: 6px;
             border: 1px solid #334155;
-        }}
+        }
 
-        .stat-label {{
+        .stat-label {
             font-size: 12px;
             color: #94a3b8;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-        }}
+        }
 
-        .stat-value {{
+        .stat-value {
             font-size: 22px;
             font-weight: 700;
             color: #ffffff;
             margin-top: 4px;
-        }}
+        }
 
-        .heatmap-row {{
+        .heatmap-row {
             margin-bottom: 16px;
-        }}
+        }
 
-        .heatmap-header {{
+        .heatmap-header {
             display: flex;
             justify-content: space-between;
             font-size: 13px;
             margin-bottom: 6px;
-        }}
+        }
 
-        .topic-name {{
+        .topic-name {
             color: #e2e8f0;
             font-weight: 500;
-        }}
+        }
 
-        .topic-pct {{
+        .topic-pct {
             font-weight: 600;
-        }}
+        }
 
-        .progress-bar-bg {{
+        .progress-bar-bg {
             background-color: #0f172a;
             height: 8px;
             border-radius: 4px;
             overflow: hidden;
-        }}
+        }
 
-        .progress-bar-fill {{
+        .progress-bar-fill {
             height: 100%;
             border-radius: 4px;
             transition: width 0.3s ease;
-        }}
+        }
 
         /* Routine Checklist */
-        .routine-card {{
+        .routine-card {
             background-color: #0f172a;
             padding: 16px;
             border-radius: 6px;
             margin-bottom: 12px;
             border-left: 3px solid #10b981;
-        }}
+        }
 
-        .routine-title {{
+        .routine-title {
             font-size: 14px;
             font-weight: 600;
             color: #f8fafc;
-        }}
+        }
 
-        .routine-desc {{
+        .routine-desc {
             font-size: 13px;
             color: #94a3b8;
             margin-top: 4px;
-        }}
+        }
 
         /* Interactive Flashcard Viewer */
-        .flashcard-box {{
+        .flashcard-box {
             background-color: #0f172a;
             padding: 32px;
             border-radius: 8px;
@@ -257,23 +209,23 @@ class WebStudioServer:
             align-items: center;
             cursor: pointer;
             margin-bottom: 20px;
-        }}
+        }
 
-        .flashcard-prompt {{
+        .flashcard-prompt {
             font-size: 18px;
             font-weight: 600;
             color: #ffffff;
-        }}
+        }
 
-        .flashcard-answer {{
+        .flashcard-answer {
             font-size: 15px;
             color: #10b981;
             margin-top: 16px;
             display: none;
-        }}
+        }
 
         /* Buttons */
-        .btn {{
+        .btn {
             background-color: #10b981;
             color: #064e3b;
             border: none;
@@ -284,33 +236,33 @@ class WebStudioServer:
             border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.15s ease;
-        }}
+        }
 
-        .btn:hover {{
+        .btn:hover {
             background-color: #059669;
             color: #ffffff;
-        }}
+        }
 
-        .btn-outline {{
+        .btn-outline {
             background: none;
             border: 1px solid #334155;
             color: #e2e8f0;
-        }}
+        }
 
-        .btn-outline:hover {{
+        .btn-outline:hover {
             border-color: #94a3b8;
             background-color: #1e293b;
-        }}
+        }
 
-        .rating-btns {{
+        .rating-btns {
             display: flex;
             justify-content: center;
             gap: 8px;
             margin-top: 16px;
-        }}
+        }
 
         /* Code Editor & Input Boxes */
-        textarea, input[type="text"] {{
+        textarea, input[type="text"] {
             width: 100%;
             background-color: #0f172a;
             border: 1px solid #334155;
@@ -321,13 +273,13 @@ class WebStudioServer:
             border-radius: 6px;
             margin-bottom: 12px;
             outline: none;
-        }}
+        }
 
-        textarea:focus, input[type="text"]:focus {{
+        textarea:focus, input[type="text"]:focus {
             border-color: #10b981;
-        }}
+        }
 
-        .output-box {{
+        .output-box {
             background-color: #0f172a;
             border: 1px solid #334155;
             border-radius: 6px;
@@ -337,14 +289,14 @@ class WebStudioServer:
             color: #e2e8f0;
             white-space: pre-wrap;
             min-height: 80px;
-        }}
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Coding Trainer AI <span class="badge-distinction">{analytics.predicted_grade}</span></h1>
-        <div class="subtitle">Candidate: {analytics.user_name} | Overall Master's Score: {analytics.overall_percentage:.1f}% | Streak: {analytics.streak_days} Days</div>
+        <h1>Coding Trainer AI <span class="badge-distinction">🏆 DISTINCTION (70.6%)</span></h1>
+        <div class="subtitle">Candidate: MSc Student | Overall Master's Score: 70.6% | Streak: 14 Days</div>
     </header>
 
     <div class="nav-tabs">
@@ -361,34 +313,182 @@ class WebStudioServer:
         <div class="analytics-grid">
             <div class="stat-box">
                 <div class="stat-label">Predicted Result</div>
-                <div class="stat-value" style="color: #10b981;">{analytics.predicted_grade}</div>
+                <div class="stat-value" style="color: #10b981;">🏆 DISTINCTION (70.6%)</div>
             </div>
             <div class="stat-box">
                 <div class="stat-label">Overall Percentage</div>
-                <div class="stat-value">{analytics.overall_percentage:.1f}%</div>
+                <div class="stat-value">70.6%</div>
             </div>
             <div class="stat-box">
                 <div class="stat-label">Distinction Badges</div>
-                <div class="stat-value">{analytics.distinction_badges_count} Earned</div>
+                <div class="stat-value">8 Earned</div>
             </div>
             <div class="stat-box">
                 <div class="stat-label">Daily Power Streak</div>
-                <div class="stat-value">{analytics.streak_days} Days</div>
+                <div class="stat-value">14 Days</div>
             </div>
         </div>
 
         <div class="card">
             <div class="card-title">Topic-by-Topic Readiness Heatmap</div>
-            {heatmap_html_str}
+            
+                <div class="heatmap-row">
+                    <div class="heatmap-header">
+                        <span class="topic-name">Python Syntax & Memory Models</span>
+                        <span class="topic-pct" style="color: #22c55e;">85.0% (DISTINCTION)</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 85.0%; background-color: #22c55e;"></div>
+                    </div>
+                </div>
+            
+
+                <div class="heatmap-row">
+                    <div class="heatmap-header">
+                        <span class="topic-name">Conditionals & Control Flow</span>
+                        <span class="topic-pct" style="color: #22c55e;">78.0% (DISTINCTION)</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 78.0%; background-color: #22c55e;"></div>
+                    </div>
+                </div>
+            
+
+                <div class="heatmap-row">
+                    <div class="heatmap-header">
+                        <span class="topic-name">Loops & Iterators</span>
+                        <span class="topic-pct" style="color: #22c55e;">72.0% (DISTINCTION)</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 72.0%; background-color: #22c55e;"></div>
+                    </div>
+                </div>
+            
+
+                <div class="heatmap-row">
+                    <div class="heatmap-header">
+                        <span class="topic-name">Data Structures & Hash Maps</span>
+                        <span class="topic-pct" style="color: #3b82f6;">65.0% (MERIT)</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 65.0%; background-color: #3b82f6;"></div>
+                    </div>
+                </div>
+            
+
+                <div class="heatmap-row">
+                    <div class="heatmap-header">
+                        <span class="topic-name">Functions & Scope Rules</span>
+                        <span class="topic-pct" style="color: #22c55e;">70.0% (DISTINCTION)</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 70.0%; background-color: #22c55e;"></div>
+                    </div>
+                </div>
+            
+
+                <div class="heatmap-row">
+                    <div class="heatmap-header">
+                        <span class="topic-name">DSA Two Pointers Pattern</span>
+                        <span class="topic-pct" style="color: #22c55e;">75.0% (DISTINCTION)</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 75.0%; background-color: #22c55e;"></div>
+                    </div>
+                </div>
+            
+
+                <div class="heatmap-row">
+                    <div class="heatmap-header">
+                        <span class="topic-name">DSA BFS & Graph Traversal</span>
+                        <span class="topic-pct" style="color: #3b82f6;">68.0% (MERIT)</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 68.0%; background-color: #3b82f6;"></div>
+                    </div>
+                </div>
+            
+
+                <div class="heatmap-row">
+                    <div class="heatmap-header">
+                        <span class="topic-name">Math SE(3) Transformations</span>
+                        <span class="topic-pct" style="color: #22c55e;">72.0% (DISTINCTION)</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 72.0%; background-color: #22c55e;"></div>
+                    </div>
+                </div>
+            
+
+                <div class="heatmap-row">
+                    <div class="heatmap-header">
+                        <span class="topic-name">1D Kalman Filter Estimation</span>
+                        <span class="topic-pct" style="color: #eab308;">55.0% (PASS)</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 55.0%; background-color: #eab308;"></div>
+                    </div>
+                </div>
+            
+
+                <div class="heatmap-row">
+                    <div class="heatmap-header">
+                        <span class="topic-name">PyTorch Autograd & Tensors</span>
+                        <span class="topic-pct" style="color: #3b82f6;">62.0% (MERIT)</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 62.0%; background-color: #3b82f6;"></div>
+                    </div>
+                </div>
+            
+
+                <div class="heatmap-row">
+                    <div class="heatmap-header">
+                        <span class="topic-name">ROS 2 Pub/Sub Architecture</span>
+                        <span class="topic-pct" style="color: #22c55e;">74.0% (DISTINCTION)</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 74.0%; background-color: #22c55e;"></div>
+                    </div>
+                </div>
+            
+
+                <div class="heatmap-row">
+                    <div class="heatmap-header">
+                        <span class="topic-name">UK Written Exam Essay Mode</span>
+                        <span class="topic-pct" style="color: #22c55e;">71.0% (DISTINCTION)</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 71.0%; background-color: #22c55e;"></div>
+                    </div>
+                </div>
+            
         </div>
     </div>
 
     <!-- Tab 2: 15-Min Daily Micro-Routine -->
     <div id="tab-routine" class="tab-content">
         <div class="card">
-            <div class="card-title">Daily 15-Minute Micro-Study Power Session ({routine.date_str})</div>
-            {routine_html_str}
-            <button class="btn" style="margin-top: 12px;" onclick="alert('Session Completed! Streak updated to {analytics.streak_days + 1} Days!')">✅ Complete Daily Routine</button>
+            <div class="card-title">Daily 15-Minute Micro-Study Power Session (2026-08-17)</div>
+            
+                <div class="routine-card">
+                    <div class="routine-title">Task 1: 🎴 5 Mins: SRS Spaced Repetition Due Flashcards (5 Mins)</div>
+                    <div class="routine-desc">Review due cards across Python, C++ Memory, DSA, and ROS 2 decks to reinforce SuperMemo SM-2 memory intervals.</div>
+                </div>
+            
+
+                <div class="routine-card">
+                    <div class="routine-title">Task 2: ⚡ 5 Mins: Anti-Copilot Raw Syntax Typing Drill (5 Mins)</div>
+                    <div class="routine-desc">Type out complex syntax templates with zero autocomplete allowed. Character-by-character diff evaluation.</div>
+                </div>
+            
+
+                <div class="routine-card">
+                    <div class="routine-title">Task 3: 📝 5 Mins: 1 UK Master's University Exam Question (5 Mins)</div>
+                    <div class="routine-desc">Answer 1 written exam question (Part A Conceptual or Part B Code Tracing) with UK Distinction Rubric Feedback.</div>
+                </div>
+            
+            <button class="btn" style="margin-top: 12px;" onclick="alert('Session Completed! Streak updated to 15 Days!')">✅ Complete Daily Routine</button>
         </div>
     </div>
 
@@ -444,7 +544,7 @@ Active Nodes:
   • [/motion_controller_node] -> Subscribes: [/joint_states]
 
 Stream (`ros2 topic echo /joint_states`):
-  [Timestamp 1.25s] Topic: /joint_states | Data: {{"position": [0.785, 0.523]}}
+  [Timestamp 1.25s] Topic: /joint_states | Data: {"position": [0.785, 0.523]}
 
 2-DOF Robot Arm Forward Kinematics:
   Joint Angles: θ1=45.0°, θ2=30.0°
@@ -454,83 +554,52 @@ Stream (`ros2 topic echo /joint_states`):
     </div>
 
     <script>
-        function switchTab(tabId) {{
+        function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
             event.target.classList.add('active');
             document.getElementById(tabId).classList.add('active');
-        }}
+        }
 
-        function revealFlashcardAnswer() {{
+        function revealFlashcardAnswer() {
             document.getElementById('fc-answer').style.display = 'block';
             document.getElementById('rating-controls').style.display = 'flex';
-        }}
+        }
 
-        function nextFlashcard(rating) {{
+        function nextFlashcard(rating) {
             const cards = [
-                {{ p: "What is an SE(3) Homogeneous Transformation Matrix?", a: "A 4x4 matrix encoding 3D rotation R ∈ SO(3) and 3D translation vector t ∈ R³." }},
-                {{ p: "What is the primary role of PyTorch `loss.backward()`?", a: "Computes gradients via reverse-mode automatic differentiation on the computation graph." }},
-                {{ p: "What is the Master's Distinction Threshold?", a: "70% to 100% (requires mathematical rigor, edge case analysis, and clean architecture)." }}
+                { p: "What is an SE(3) Homogeneous Transformation Matrix?", a: "A 4x4 matrix encoding 3D rotation R ∈ SO(3) and 3D translation vector t ∈ R³." },
+                { p: "What is the primary role of PyTorch `loss.backward()`?", a: "Computes gradients via reverse-mode automatic differentiation on the computation graph." },
+                { p: "What is the Master's Distinction Threshold?", a: "70% to 100% (requires mathematical rigor, edge case analysis, and clean architecture)." }
             ];
             const randomCard = cards[Math.floor(Math.random() * cards.length)];
             document.getElementById('fc-prompt').innerText = randomCard.p;
             document.getElementById('fc-answer').innerHTML = randomCard.a;
             document.getElementById('fc-answer').style.display = 'none';
             document.getElementById('rating-controls').style.display = 'none';
-        }}
+        }
 
-        function evaluateSyntaxGym() {{
+        function evaluateSyntaxGym() {
             const val = document.getElementById('syntax-input').value;
-            if (val.includes('def') && val.includes('return')) {{
+            if (val.includes('def') && val.includes('return')) {
                 document.getElementById('syntax-output').innerText = "✅ VALID SYNTAX! AST parsing clean. Execution output matches expected target.";
-            }} else {{
+            } else {
                 document.getElementById('syntax-output').innerText = "⚠️ INCOMPLETE SYNTAX. Ensure function definition ('def') and return statement are present.";
-            }}
-        }}
+            }
+        }
 
-        function askGeminiTutor() {{
+        function askGeminiTutor() {
             const q = document.getElementById('ai-query').value;
             if (!q) return;
-            document.getElementById('ai-output').innerText = "✨ Consulting Gemini 3.5 Flash AI Engine...\n\n🏛️ INTUITIVE ANALOGY: Think of this concept like a multi-stage treaty verification protocol.\n\n💡 CONCEPTUAL HINT: Focus on identifying the initial state versus the updated state.\n\n❓ SOCRATIC QUESTION: What happens if your input state is empty?";
-        }}
+            document.getElementById('ai-output').innerText = "✨ Consulting Gemini 3.5 Flash AI Engine...
+
+🏛️ INTUITIVE ANALOGY: Think of this concept like a multi-stage treaty verification protocol.
+
+💡 CONCEPTUAL HINT: Focus on identifying the initial state versus the updated state.
+
+❓ SOCRATIC QUESTION: What happens if your input state is empty?";
+        }
     </script>
 </body>
 </html>
-"""
-        return html
-
-    def export_html_file(
-        self, analytics: StudentAnalytics, routine: DailyRoutine, output_filepath: str
-    ) -> str:
-        os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
-        html_content = self.generate_html_dashboard(analytics, routine)
-        with open(output_filepath, "w", encoding="utf-8") as f:
-            f.write(html_content)
-        return output_filepath
-
-    def start_local_server(self, html_filepath: str, port: int = 8080):
-        """
-        Launches a lightweight background HTTP server serving the Web Studio at http://localhost:PORT
-        """
-        web_dir = os.path.dirname(html_filepath)
-        filename = os.path.basename(html_filepath)
-
-        class CustomHandler(http.server.SimpleHTTPRequestHandler):
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, directory=web_dir, **kwargs)
-
-            def do_GET(self):
-                if self.path == "/" or self.path == "":
-                    self.path = "/" + filename
-                return super().do_GET()
-
-        try:
-            httpd = socketserver.TCPServer(("", port), CustomHandler)
-            thread = threading.Thread(target=httpd.serve_forever)
-            thread.daemon = True
-            thread.start()
-            print(f"\n🌐 Web Studio Live Server started at: http://localhost:{port}")
-            webbrowser.open(f"http://localhost:{port}")
-        except Exception as e:
-            print(f"Server error: {e}")
