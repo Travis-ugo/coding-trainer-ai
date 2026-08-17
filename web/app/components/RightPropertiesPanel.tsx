@@ -1,9 +1,12 @@
 "use client";
 
 import React from "react";
+import { useTrainerContext } from "../context/TrainerContext";
 import { Award, Zap, Clock, CheckCircle2, ChevronRight } from "lucide-react";
 
 export const RightPropertiesPanel: React.FC = () => {
+  const { analyticsData } = useTrainerContext();
+
   return (
     <aside className="w-72 bg-[#0a0a0a] border-l border-[#222222] flex flex-col h-[calc(100vh-3.5rem)] select-none shrink-0">
       {/* Dashboard Inspector Header */}
@@ -22,11 +25,15 @@ export const RightPropertiesPanel: React.FC = () => {
           <div className="bg-[#111111] border border-[#222222] p-4 rounded-md space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-[#888888]">Target Level:</span>
-              <span className="font-bold text-[#00e599]">🏆 DISTINCTION</span>
+              <span className="font-bold text-[#00e599]">
+                {analyticsData?.predicted_grade || "🏆 DISTINCTION"}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-[#888888]">Predicted Score:</span>
-              <span className="font-semibold text-white font-mono">72.5%</span>
+              <span className="font-semibold text-white font-mono">
+                {analyticsData?.overall_percentage ? `${analyticsData.overall_percentage.toFixed(1)}%` : "72.5%"}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-[#888888]">Pass Threshold:</span>
@@ -38,7 +45,7 @@ export const RightPropertiesPanel: React.FC = () => {
         {/* Distinction Badges Showcase */}
         <div>
           <div className="text-[10px] font-semibold text-[#666666] uppercase tracking-wider mb-2 flex items-center justify-between">
-            <span>Distinction Badges</span>
+            <span>Distinction Badges ({analyticsData?.distinction_badges_count || 8} Earned)</span>
             <Award className="w-3.5 h-3.5 text-[#00e599]" />
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -86,7 +93,9 @@ export const RightPropertiesPanel: React.FC = () => {
             <Zap className="w-3.5 h-3.5 text-[#eab308]" />
           </div>
           <div className="bg-[#111111] border border-[#222222] p-3.5 rounded-md flex items-center justify-between">
-            <span className="text-white font-medium">14 Days Streak</span>
+            <span className="text-white font-medium">
+              {analyticsData?.streak_days || 14} Days Streak
+            </span>
             <span className="text-[10px] bg-[#eab308]/15 border border-[#eab308]/30 text-[#eab308] font-bold px-2 py-0.5 rounded-md">
               🔥 Active
             </span>

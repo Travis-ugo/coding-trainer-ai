@@ -1,25 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
+import { TrainerProvider, useTrainerContext } from "./context/TrainerContext";
 import { TopToolbar } from "./components/TopToolbar";
 import { LeftSidebar } from "./components/LeftSidebar";
 import { CanvasWorkspace } from "./components/CanvasWorkspace";
 import { RightPropertiesPanel } from "./components/RightPropertiesPanel";
 
-export default function Page() {
-  const [activeTool, setActiveTool] = useState<string>("analytics");
-  const [selectedModule, setSelectedModule] = useState<string>("py_mod_01");
+function MainStudioWorkspace() {
+  const { activeTool, setActiveTool, selectedModule, setSelectedModule } = useTrainerContext();
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#1e1e1e] overflow-hidden select-none">
-      {/* Top Figma App Bar Toolbar */}
+    <div className="flex flex-col h-screen w-screen bg-[#000000] overflow-hidden select-none">
+      {/* Top App Bar Toolbar */}
       <TopToolbar
         activeTool={activeTool}
         setActiveTool={setActiveTool}
         aiActive={true}
       />
 
-      {/* 3-Pane Figma Workspace Layout */}
+      {/* 3-Pane Workspace Layout */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Navigator & Layers Tree */}
         <LeftSidebar
@@ -29,15 +29,23 @@ export default function Page() {
           setSelectedModule={setSelectedModule}
         />
 
-        {/* Center Infinite Main Canvas */}
+        {/* Center Main Canvas */}
         <CanvasWorkspace
           activeTool={activeTool}
           selectedModule={selectedModule}
         />
 
-        {/* Right Properties & Inspector Panel */}
+        {/* Right Properties Inspector */}
         <RightPropertiesPanel />
       </div>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <TrainerProvider>
+      <MainStudioWorkspace />
+    </TrainerProvider>
   );
 }

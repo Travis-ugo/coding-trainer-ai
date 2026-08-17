@@ -9,8 +9,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Coding Trainer AI - Master's Figma Studio",
-  description: "Figma-inspired Dark Canvas UI for Master's AI & Robotics Training",
+  title: "Coding Trainer AI - Master's Studio",
+  description: "Next.js & Render.com Deep Dark Studio UI for Master's AI & Robotics Training",
 };
 
 export default function RootLayout({
@@ -19,8 +19,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={poppins.variable}>
-      <body className="font-poppins bg-[#1e1e1e] text-white antialiased">
+    <html lang="en" className={poppins.variable} suppressHydrationWarning>
+      <body
+        className="font-poppins bg-[#000000] text-white antialiased"
+        suppressHydrationWarning
+      >
         {children}
       </body>
     </html>
