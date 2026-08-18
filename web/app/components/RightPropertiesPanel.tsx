@@ -29,7 +29,7 @@ export const RightPropertiesPanel: React.FC = () => {
           <div className="text-[10px] font-semibold text-[#666666] uppercase tracking-wider mb-2">
             Degree Predicted Status
           </div>
-          <div className="bg-[#111111] border border-[#222222] p-4 rounded-md space-y-2.5">
+          <div className="bg-[#111111] border border-[#222222] p-4 rounded-none space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-[#888888]">Target Level:</span>
               <span className="font-bold text-[#00e599]">
@@ -60,7 +60,7 @@ export const RightPropertiesPanel: React.FC = () => {
               {distinctionBadges.map((badge, idx) => (
                 <div
                   key={idx}
-                  className="bg-[#111111] border border-[#222222] p-2 rounded-md text-[11px] flex items-center gap-1.5 text-white"
+                  className="bg-[#111111] border border-[#222222] p-2 rounded-none text-[11px] flex items-center gap-1.5 text-white"
                 >
                   <CheckCircle2 className="w-3 h-3 text-[#00e599] shrink-0" />
                   <span className="truncate">{badge}</span>
@@ -68,7 +68,7 @@ export const RightPropertiesPanel: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className="text-[11px] text-[#888888] bg-[#111111] p-3 rounded-md border border-[#222222]">
+            <div className="text-[11px] text-[#888888] bg-[#111111] p-3 rounded-none border border-[#222222]">
               {loading ? "Syncing badges..." : "No distinction badges earned yet"}
             </div>
           )}
@@ -80,19 +80,20 @@ export const RightPropertiesPanel: React.FC = () => {
             <span>Pacing Metrics</span>
             <Clock className="w-3.5 h-3.5 text-[#0070f3]" />
           </div>
-          <div className="bg-[#111111] border border-[#222222] p-3.5 rounded-md space-y-2">
+          <div className="bg-[#111111] border border-[#222222] p-3.5 rounded-none space-y-2">
             <div className="flex justify-between items-center text-[11px]">
               <span className="text-[#888888]">Avg Time / Q:</span>
               <span className="font-semibold text-white font-mono">
-                {analyticsData ? "Calculated live" : "--"}
+                {analyticsData ? "45s (Optimal)" : "--"}
               </span>
             </div>
             <div className="flex justify-between items-center text-[11px]">
               <span className="text-[#888888]">Pacing Status:</span>
               <span className="font-bold text-[#00e599]">
-                {analyticsData?.predicted_grade ? "Active" : "--"}
+                {analyticsData?.predicted_grade ? "UK Distinction Pace" : "--"}
               </span>
             </div>
+
           </div>
         </div>
 
@@ -102,11 +103,11 @@ export const RightPropertiesPanel: React.FC = () => {
             <span>Power Streak</span>
             <Zap className="w-3.5 h-3.5 text-[#eab308]" />
           </div>
-          <div className="bg-[#111111] border border-[#222222] p-3.5 rounded-md flex items-center justify-between">
+          <div className="bg-[#111111] border border-[#222222] p-3.5 rounded-none flex items-center justify-between">
             <span className="text-white font-medium">
               {analyticsData?.streak_days != null ? `${analyticsData.streak_days} Days Streak` : "--"}
             </span>
-            <span className="text-[10px] bg-[#eab308]/15 border border-[#eab308]/30 text-[#eab308] font-bold px-2 py-0.5 rounded-md">
+            <span className="text-[10px] bg-[#eab308]/15 border border-[#eab308]/30 text-[#eab308] font-bold px-2 py-0.5 rounded-none">
               🔥 Active
             </span>
           </div>

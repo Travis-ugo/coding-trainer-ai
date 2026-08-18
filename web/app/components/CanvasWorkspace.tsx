@@ -101,7 +101,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
     <main className="flex-1 bg-[#000000] overflow-y-auto p-8 relative flex justify-center items-start">
       <div className="w-full max-w-4xl space-y-6">
         {error && (
-          <div className="bg-[#7f1d1d]/30 border border-[#ef4444] text-[#ef4444] p-3.5 rounded-md text-xs font-mono">
+          <div className="bg-[#7f1d1d]/30 border border-[#ef4444] text-[#ef4444] p-3.5 rounded-none text-xs font-mono">
             ⚠️ {error}
           </div>
         )}
@@ -119,12 +119,12 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   Topic-by-topic percentage breakdown computed by Python Grade Analytics Engine
                 </p>
               </div>
-              <div className="bg-[#111111] border border-[#00e599]/30 text-[#00e599] font-bold text-xs px-3.5 py-1.5 rounded-md">
+              <div className="bg-[#111111] border border-[#00e599]/30 text-[#00e599] font-bold text-xs px-3.5 py-1.5 rounded-none">
                 {analyticsData?.predicted_grade || (loading ? "Syncing..." : "--")}
               </div>
             </div>
 
-            <div className="bg-[#0a0a0a] border border-[#222222] rounded-lg p-6 space-y-4">
+            <div className="bg-[#0a0a0a] border border-[#222222] rounded-none p-6 space-y-4">
               {analyticsData?.topic_grades && analyticsData.topic_grades.length > 0 ? (
                 analyticsData.topic_grades.map((item, idx) => (
                   <div key={idx} className="space-y-1.5">
@@ -134,9 +134,9 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                         {item.score_percentage}% ({item.grade_label})
                       </span>
                     </div>
-                    <div className="w-full bg-[#111111] h-2 rounded-full overflow-hidden border border-[#222222]">
+                    <div className="w-full bg-[#111111] h-2 rounded-none overflow-hidden border border-[#222222]">
                       <div
-                        className="h-full rounded-full transition-all duration-300"
+                        className="h-full rounded-none transition-all duration-300"
                         style={{ width: `${item.score_percentage}%`, backgroundColor: item.color_hex }}
                       />
                     </div>
@@ -166,7 +166,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
             <div className="space-y-3">
               {(routineData?.tasks || []).map((task, idx) => (
-                <div key={idx} className="bg-[#0a0a0a] border border-[#222222] border-l-4 border-l-[#00e599] rounded-r-md p-4">
+                <div key={idx} className="bg-[#0a0a0a] border border-[#222222] border-l-4 border-l-[#00e599] rounded-none p-4">
                   <h3 className="text-sm font-bold text-white">{task.title}</h3>
                   <p className="text-xs text-[#888888] mt-1">{task.details}</p>
                 </div>
@@ -194,7 +194,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               </div>
 
               {/* Deck Selector Pills */}
-              <div className="flex items-center gap-1.5 bg-[#0a0a0a] border border-[#222222] p-1 rounded-md">
+              <div className="flex items-center gap-1.5 bg-[#0a0a0a] border border-[#222222] p-1 rounded-none">
                 {flashcardDecks.map((deck) => (
                   <button
                     key={deck.id}
@@ -203,7 +203,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                       setFlashcardIndex(0);
                       setFlashcardFlipped(false);
                     }}
-                    className={`px-3 py-1 rounded text-xs font-medium transition-all ${
+                    className={`px-3 py-1 rounded-none text-xs font-medium transition-all ${
                       activeDeckId === deck.id
                         ? "bg-[#1f1f1f] text-white border border-[#333333]"
                         : "text-[#888888] hover:text-white"
@@ -220,7 +220,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               <>
                 <div
                   onClick={() => setFlashcardFlipped(!flashcardFlipped)}
-                  className="bg-[#0a0a0a] border border-[#222222] hover:border-[#0070f3] rounded-lg p-10 min-h-[240px] flex flex-col justify-center items-center text-center cursor-pointer transition-colors"
+                  className="bg-[#0a0a0a] border border-[#222222] hover:border-[#0070f3] rounded-none p-10 min-h-[240px] flex flex-col justify-center items-center text-center cursor-pointer transition-colors"
                 >
                   <div className="text-xs font-semibold text-[#0070f3] uppercase tracking-wider mb-3">
                     {flashcardFlipped ? "Answer / Back" : "Question / Front (Click to Flip)"}
@@ -234,7 +234,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                         {currentCard.answer}
                       </div>
                       {currentCard.analogy && (
-                        <div className="text-xs text-[#888888] bg-[#111111] p-3 rounded-md border border-[#222222]">
+                        <div className="text-xs text-[#888888] bg-[#111111] p-3 rounded-none border border-[#222222]">
                           🏛️ Analogy: {currentCard.analogy}
                         </div>
                       )}
@@ -258,8 +258,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               </>
             ) : currentDeck ? (
               /* Deck Completed Screen */
-              <div className="bg-[#0a0a0a] border border-[#222222] rounded-lg p-8 text-center space-y-4">
-                <div className="w-12 h-12 bg-[#00e599]/15 text-[#00e599] rounded-full flex items-center justify-center mx-auto border border-[#00e599]/30">
+              <div className="bg-[#0a0a0a] border border-[#222222] rounded-none p-8 text-center space-y-4">
+                <div className="w-12 h-12 bg-[#00e599]/15 text-[#00e599] rounded-none flex items-center justify-center mx-auto border border-[#00e599]/30">
                   <CheckCircle className="w-6 h-6" />
                 </div>
                 <div>
@@ -301,7 +301,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               </div>
             </div>
 
-            <div className="bg-[#0a0a0a] border border-[#222222] rounded-lg p-5 space-y-4">
+            <div className="bg-[#0a0a0a] border border-[#222222] rounded-none p-5 space-y-4">
               <label className="text-xs text-[#888888] font-medium block">
                 Type out the Python implementation for {activeModuleData.title} from memory:
               </label>
@@ -310,7 +310,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 defaultValue={activeModuleData.code}
                 onChange={(e) => setSyntaxCode(e.target.value)}
                 rows={8}
-                className="w-full bg-[#111111] border border-[#2e2e2e] rounded-md p-3.5 text-xs font-mono text-white focus:outline-none focus:border-[#0070f3]"
+                className="w-full bg-[#111111] border border-[#2e2e2e] rounded-none p-3.5 text-xs font-mono text-white focus:outline-none focus:border-[#0070f3]"
               />
 
               <button
@@ -329,13 +329,13 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               </button>
 
               {syntaxError && (
-                <div className="bg-[#7f1d1d]/30 border border-[#ef4444] p-3.5 rounded-md text-xs font-mono text-[#ef4444]">
+                <div className="bg-[#7f1d1d]/30 border border-[#ef4444] p-3.5 rounded-none text-xs font-mono text-[#ef4444]">
                   ❌ {syntaxError}
                 </div>
               )}
 
               {syntaxFeedback && (
-                <div className="bg-[#111111] border border-[#2e2e2e] p-3.5 rounded-md text-xs font-mono text-[#e2e8f0] space-y-1">
+                <div className="bg-[#111111] border border-[#2e2e2e] p-3.5 rounded-none text-xs font-mono text-[#e2e8f0] space-y-1">
                   <div className="font-bold text-white">
                     Score: {syntaxFeedback.score || 100}% | AST Valid: {syntaxFeedback.ast_valid ? "YES" : "NO"}
                   </div>
@@ -359,13 +359,13 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               </div>
             </div>
 
-            <div className="bg-[#0a0a0a] border border-[#222222] rounded-lg p-5 space-y-4">
+            <div className="bg-[#0a0a0a] border border-[#222222] rounded-none p-5 space-y-4">
               <input
                 type="text"
                 value={aiQuery}
                 onChange={(e) => setAiQuery(e.target.value)}
                 placeholder="Ask any code or math question (e.g. How do Kalman Filters balance sensor noise?)..."
-                className="w-full bg-[#111111] border border-[#2e2e2e] rounded-md p-3.5 text-xs text-white focus:outline-none focus:border-[#00e599]"
+                className="w-full bg-[#111111] border border-[#2e2e2e] rounded-none p-3.5 text-xs text-white focus:outline-none focus:border-[#00e599]"
               />
 
               <button
@@ -384,13 +384,13 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               </button>
 
               {aiError && (
-                <div className="bg-[#7f1d1d]/30 border border-[#ef4444] p-3.5 rounded-md text-xs font-mono text-[#ef4444]">
+                <div className="bg-[#7f1d1d]/30 border border-[#ef4444] p-3.5 rounded-none text-xs font-mono text-[#ef4444]">
                   ❌ {aiError}
                 </div>
               )}
 
               {aiResponse && (
-                <div className="bg-[#111111] border border-[#2e2e2e] p-4 rounded-md text-xs font-mono text-[#e2e8f0] space-y-3">
+                <div className="bg-[#111111] border border-[#2e2e2e] p-4 rounded-none text-xs font-mono text-[#e2e8f0] space-y-3">
                   <div>
                     <span className="font-bold text-[#0070f3]">🏛️ Intuitive Analogy:</span>
                     <p className="text-[#e2e8f0] mt-0.5">{aiResponse.analogy}</p>
@@ -422,23 +422,23 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               </div>
             </div>
 
-            <div className="bg-[#0a0a0a] border border-[#222222] rounded-lg p-5 font-mono text-xs text-[#e2e8f0] space-y-4">
+            <div className="bg-[#0a0a0a] border border-[#222222] rounded-none p-5 font-mono text-xs text-[#e2e8f0] space-y-4">
               <div className="text-white font-bold">Active ROS 2 Node Graph:</div>
-              <pre className="text-[#888888] bg-[#111111] p-3 rounded border border-[#222222] whitespace-pre-wrap">
+              <pre className="text-[#888888] bg-[#111111] p-3 rounded-none border border-[#222222] whitespace-pre-wrap">
                 {ros2Data?.architecture || "Loading ROS 2 node graph..."}
               </pre>
 
               <div className="border-t border-[#222222] pt-4 text-white font-bold">
                 Stream (`ros2 topic echo /joint_states`):
               </div>
-              <div className="text-[#00e599] bg-[#111111] p-3 rounded border border-[#222222]">
+              <div className="text-[#00e599] bg-[#111111] p-3 rounded-none border border-[#222222]">
                 {JSON.stringify(ros2Data?.topic_stream || [], null, 2)}
               </div>
 
               <div className="border-t border-[#222222] pt-4 text-white font-bold">
                 2-DOF Robot Arm Forward Kinematics Calculation:
               </div>
-              <div className="bg-[#111111] p-3 rounded border border-[#222222]">
+              <div className="bg-[#111111] p-3 rounded-none border border-[#222222]">
                 {JSON.stringify(ros2Data?.kinematics || {}, null, 2)}
               </div>
             </div>

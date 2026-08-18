@@ -1,7 +1,9 @@
 "use client";
 
-import React from "react";
-import { MousePointer, Layout, Code, Bot, Sparkles, Layers } from "lucide-react";
+import React, { useState } from "react";
+import { MousePointer, Layout, Code, Bot, Sparkles, Layers, User as UserIcon, LogOut, ShieldCheck } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { AuthModal } from "./AuthModal";
 
 interface TopToolbarProps {
   activeTool: string;
@@ -14,11 +16,14 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({
   setActiveTool,
   aiActive,
 }) => {
+  const { user, signOutUser } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+
   return (
     <header className="h-14 bg-[#000000] border-b border-[#222222] px-5 flex items-center justify-between select-none shrink-0">
       {/* Left App Logo & Render Dashboard Breadcrumbs */}
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 bg-white text-black font-bold rounded flex items-center justify-center text-xs tracking-tighter">
+        <div className="w-8 h-8 bg-white text-black font-bold rounded-none flex items-center justify-center text-xs tracking-tighter">
           ▲
         </div>
         <div className="flex items-center gap-2 text-xs">
@@ -27,17 +32,17 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({
           </span>
           <span className="text-[#666666]">/</span>
           <span className="text-[#a1a1a1]">master-studio</span>
-          <span className="bg-[#111111] border border-[#2e2e2e] text-[#00e599] text-[10px] font-mono px-2 py-0.5 rounded">
+          <span className="bg-[#111111] border border-[#2e2e2e] text-[#00e599] text-[10px] font-mono px-2 py-0.5 rounded-none">
             v2.5 production
           </span>
         </div>
       </div>
 
       {/* Center Next.js Box Rectangle Button Navigation Bar */}
-      <div className="flex items-center bg-[#0a0a0a] border border-[#222222] rounded-md p-1 gap-1">
+      <div className="flex items-center bg-[#0a0a0a] border border-[#222222] rounded-none p-1 gap-1">
         <button
           onClick={() => setActiveTool("analytics")}
-          className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${
+          className={`px-3 py-1.5 rounded-none text-xs font-medium flex items-center gap-1.5 transition-all ${
             activeTool === "analytics"
               ? "bg-[#1f1f1f] text-white border border-[#333333]"
               : "text-[#888888] hover:text-white"
@@ -49,7 +54,7 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({
 
         <button
           onClick={() => setActiveTool("routine")}
-          className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${
+          className={`px-3 py-1.5 rounded-none text-xs font-medium flex items-center gap-1.5 transition-all ${
             activeTool === "routine"
               ? "bg-[#1f1f1f] text-white border border-[#333333]"
               : "text-[#888888] hover:text-white"
@@ -61,7 +66,7 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({
 
         <button
           onClick={() => setActiveTool("srs")}
-          className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${
+          className={`px-3 py-1.5 rounded-none text-xs font-medium flex items-center gap-1.5 transition-all ${
             activeTool === "srs"
               ? "bg-[#1f1f1f] text-white border border-[#333333]"
               : "text-[#888888] hover:text-white"
@@ -73,7 +78,7 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({
 
         <button
           onClick={() => setActiveTool("syntax")}
-          className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${
+          className={`px-3 py-1.5 rounded-none text-xs font-medium flex items-center gap-1.5 transition-all ${
             activeTool === "syntax"
               ? "bg-[#1f1f1f] text-white border border-[#333333]"
               : "text-[#888888] hover:text-white"
@@ -85,7 +90,7 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({
 
         <button
           onClick={() => setActiveTool("socratic")}
-          className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${
+          className={`px-3 py-1.5 rounded-none text-xs font-medium flex items-center gap-1.5 transition-all ${
             activeTool === "socratic"
               ? "bg-[#1f1f1f] text-white border border-[#333333]"
               : "text-[#888888] hover:text-white"
@@ -96,19 +101,55 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({
         </button>
       </div>
 
-      {/* Right Actions Status Badge */}
+      {/* Right Actions & User Identity Status Badge */}
       <div className="flex items-center gap-3">
-        {aiActive ? (
-          <div className="flex items-center gap-1.5 bg-[#00e599]/10 text-[#00e599] border border-[#00e599]/30 px-2.5 py-1 rounded-md text-xs font-medium">
+        {aiActive && (
+          <div className="hidden sm:flex items-center gap-1.5 bg-[#00e599]/10 text-[#00e599] border border-[#00e599]/30 px-2.5 py-1 rounded-none text-xs font-medium">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Gemini 3.5 Active</span>
           </div>
-        ) : (
-          <div className="text-xs text-[#888888] bg-[#111111] border border-[#222222] px-2.5 py-1 rounded-md">
-            Offline Mode
-          </div>
         )}
+
+        {/* Dedicated Auth Page Button */}
+        <a
+          href="/auth"
+          className="flex items-center gap-1.5 bg-[#0070f3]/10 hover:bg-[#0070f3]/20 text-[#0070f3] border border-[#0070f3]/30 px-3 py-1.5 rounded-none text-xs font-medium transition-all"
+        >
+          <ShieldCheck className="w-3.5 h-3.5" />
+          <span>Auth Screen</span>
+        </a>
+
+        {/* User Identity Button */}
+        <button
+          onClick={() => setAuthModalOpen(true)}
+          className="flex items-center gap-2 bg-[#111111] hover:bg-[#1f1f1f] border border-[#2e2e2e] hover:border-[#444444] text-white px-3 py-1.5 rounded-none text-xs font-medium transition-all"
+        >
+          {user?.photoURL ? (
+            <img src={user.photoURL} alt="Avatar" className="w-4 h-4 object-cover rounded-none border border-[#0070f3]" />
+          ) : (
+            <UserIcon className="w-3.5 h-3.5 text-[#0070f3]" />
+          )}
+          <span className="max-w-[120px] truncate font-mono text-[11px]">
+            {user ? (user.isAnonymous ? "Guest Student" : user.displayName || user.email?.split("@")[0] || "Student") : "Sign In"}
+          </span>
+        </button>
+
+
+        {user && !user.isAnonymous && (
+          <button
+            onClick={signOutUser}
+            title="Sign Out"
+            className="p-1.5 text-[#888888] hover:text-[#ef4444] bg-[#111111] hover:bg-[#1f1f1f] border border-[#2e2e2e] rounded-none transition-colors"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
+        )}
+
+        <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
       </div>
     </header>
+
   );
 };
+
+

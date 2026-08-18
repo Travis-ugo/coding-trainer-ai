@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { AuthProvider } from "./context/AuthContext";
 import { TrainerProvider, useTrainerContext } from "./context/TrainerContext";
 import { TopToolbar } from "./components/TopToolbar";
 import { LeftSidebar } from "./components/LeftSidebar";
@@ -44,8 +45,11 @@ function MainStudioWorkspace() {
 
 export default function Page() {
   return (
-    <TrainerProvider>
-      <MainStudioWorkspace />
-    </TrainerProvider>
+    <AuthProvider>
+      <TrainerProvider>
+        <MainStudioWorkspace />
+      </TrainerProvider>
+    </AuthProvider>
   );
 }
+

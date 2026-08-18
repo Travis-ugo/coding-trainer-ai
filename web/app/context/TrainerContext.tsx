@@ -1,6 +1,9 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { doc, setDoc, onSnapshot, serverTimestamp, getDoc } from "firebase/firestore";
+import { db } from "../../lib/firebase";
+import { useAuth } from "./AuthContext";
 
 export interface TopicGrade {
   topic_id: string;
@@ -96,6 +99,8 @@ interface TrainerContextType {
 const TrainerContext = createContext<TrainerContextType | undefined>(undefined);
 
 export const TrainerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
+
   const [activeTool, setActiveTool] = useState<string>("analytics");
   const [selectedModule, setSelectedModule] = useState<string>("py_mod_01");
 
@@ -107,6 +112,37 @@ export const TrainerProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // 1. Listen to real-time Firestore user progress document
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const userDocRef = doc(db, "users", user.uid);
+    const unsubscribe = onSnapshot(
+      userDocRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const fsData = docSnap.data();
+          setAnalyticsData((prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              overall_percentage: fsData.overall_percentage ?? prev.overall_percentage,
+              predicted_grade: fsData.predicted_grade ?? prev.predicted_grade,
+              distinction_badges_count: fsData.distinction_badges_count ?? prev.distinction_badges_count,
+              streak_days: fsData.streak_days ?? prev.streak_days,
+            };
+          });
+        }
+      },
+      (err) => {
+        console.warn("Firestore snapshot listener warning:", err);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user?.uid]);
+
+  // 2. Initial synchronization with API engine & Firestore
   useEffect(() => {
     async function syncBackendData() {
       setLoading(true);
@@ -128,6 +164,32 @@ export const TrainerProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (resAnalytics.ok) {
           const data = await resAnalytics.json();
           setAnalyticsData(data);
+
+          // Save/Sync initial analytics baseline to Firestore if logged in
+          if (user?.uid) {
+            try {
+              const userRef = doc(db, "users", user.uid);
+              const userSnap = await getDoc(userRef);
+              if (!userSnap.exists()) {
+                await setDoc(
+                  userRef,
+                  {
+                    email: user.email || "guest@trainer.ai",
+                    is_anonymous: user.isAnonymous,
+                    overall_percentage: data.overall_percentage,
+                    predicted_grade: data.predicted_grade,
+                    distinction_badges_count: data.distinction_badges_count,
+                    streak_days: data.streak_days,
+                    created_at: serverTimestamp(),
+                    updated_at: serverTimestamp(),
+                  },
+                  { merge: true }
+                );
+              }
+            } catch (fsErr) {
+              console.warn("Firestore user record init warning:", fsErr);
+            }
+          }
         } else {
           fetchErrors.push("Analytics");
         }
@@ -167,7 +229,7 @@ export const TrainerProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
 
     syncBackendData();
-  }, []);
+  }, [user?.uid]);
 
   const rateFlashcard = async (cardId: string, rating: number) => {
     const res = await fetch("/api/flashcards", {
@@ -178,6 +240,24 @@ export const TrainerProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
       throw new Error(errData.error || "Failed to rate flashcard");
+    }
+
+    // Persist flashcard review event directly in Firestore subcollection
+    if (user?.uid) {
+      try {
+        const cardRef = doc(db, "users", user.uid, "flashcards", cardId);
+        await setDoc(
+          cardRef,
+          {
+            card_id: cardId,
+            last_rating: rating,
+            last_reviewed: serverTimestamp(),
+          },
+          { merge: true }
+        );
+      } catch (fsErr) {
+        console.warn("Firestore flashcard sync warning:", fsErr);
+      }
     }
   };
 
@@ -191,8 +271,38 @@ export const TrainerProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (!res.ok) {
       throw new Error(data.error || "Syntax evaluation failed");
     }
+
+    // Persist AST submission attempt and updated user performance in Firestore
+    if (user?.uid) {
+      try {
+        const subRef = doc(db, "users", user.uid, "syntax_submissions", `sub_${Date.now()}`);
+        await setDoc(subRef, {
+          module_id: selectedModule,
+          score: data.score || 0,
+          ast_valid: data.ast_valid || false,
+          feedback: data.feedback || "",
+          code_length: code.length,
+          timestamp: serverTimestamp(),
+        });
+
+        // Update overall percentage in user's root Firestore document
+        const userRef = doc(db, "users", user.uid);
+        await setDoc(
+          userRef,
+          {
+            last_submission_score: data.score || 0,
+            updated_at: serverTimestamp(),
+          },
+          { merge: true }
+        );
+      } catch (fsErr) {
+        console.warn("Firestore syntax submission sync warning:", fsErr);
+      }
+    }
+
     return data;
   };
+
 
   const askGemini = async (prompt: string): Promise<GeminiResponse> => {
     const res = await fetch("/api/ai", {
@@ -238,3 +348,4 @@ export const useTrainerContext = () => {
   }
   return context;
 };
+

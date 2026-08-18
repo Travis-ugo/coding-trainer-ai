@@ -42,7 +42,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           <div className="space-y-1">
             <button
               onClick={() => setActiveTool("analytics")}
-              className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-2.5 transition-all ${
+              className={`w-full text-left px-3 py-2 rounded-none flex items-center gap-2.5 transition-all ${
                 activeTool === "analytics"
                   ? "bg-[#1f1f1f] text-white border border-[#333333] font-medium"
                   : "text-[#a1a1a1] hover:bg-[#111111] hover:text-white"
@@ -54,7 +54,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
             <button
               onClick={() => setActiveTool("routine")}
-              className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-2.5 transition-all ${
+              className={`w-full text-left px-3 py-2 rounded-none flex items-center gap-2.5 transition-all ${
                 activeTool === "routine"
                   ? "bg-[#1f1f1f] text-white border border-[#333333] font-medium"
                   : "text-[#a1a1a1] hover:bg-[#111111] hover:text-white"
@@ -66,7 +66,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
             <button
               onClick={() => setActiveTool("srs")}
-              className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-2.5 transition-all ${
+              className={`w-full text-left px-3 py-2 rounded-none flex items-center gap-2.5 transition-all ${
                 activeTool === "srs"
                   ? "bg-[#1f1f1f] text-white border border-[#333333] font-medium"
                   : "text-[#a1a1a1] hover:bg-[#111111] hover:text-white"
@@ -78,7 +78,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
             <button
               onClick={() => setActiveTool("socratic")}
-              className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-2.5 transition-all ${
+              className={`w-full text-left px-3 py-2 rounded-none flex items-center gap-2.5 transition-all ${
                 activeTool === "socratic"
                   ? "bg-[#1f1f1f] text-white border border-[#333333] font-medium"
                   : "text-[#a1a1a1] hover:bg-[#111111] hover:text-white"
@@ -90,7 +90,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
             <button
               onClick={() => setActiveTool("ros2")}
-              className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-2.5 transition-all ${
+              className={`w-full text-left px-3 py-2 rounded-none flex items-center gap-2.5 transition-all ${
                 activeTool === "ros2"
                   ? "bg-[#1f1f1f] text-white border border-[#333333] font-medium"
                   : "text-[#a1a1a1] hover:bg-[#111111] hover:text-white"
@@ -116,7 +116,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                   setSelectedModule(m.id);
                   setActiveTool("syntax");
                 }}
-                className={`w-full text-left px-3 py-1.5 rounded-md flex items-center justify-between text-xs transition-all ${
+                className={`w-full text-left px-3 py-1.5 rounded-none flex items-center justify-between text-xs transition-all ${
                   selectedModule === m.id && activeTool === "syntax"
                     ? "bg-[#1f1f1f] text-white border border-[#333333] font-medium"
                     : "text-[#888888] hover:bg-[#111111] hover:text-white"
