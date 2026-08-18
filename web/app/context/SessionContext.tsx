@@ -67,7 +67,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [sessions, setSessions] = useState<SessionRecord[]>([]);
   const [logs, setLogs] = useState<LogEntry[]>([]);
 
-  // Function to print formatted logs to browser console & record in state
+  // Function to print formatted logs to browser console, server terminal & record in state
   const logEvent = useCallback(
     (
       category: LogEntry["category"],
@@ -84,7 +84,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         details,
       };
 
-      // Formatted console printout
+      // Formatted browser console printout
       const badgeColors: Record<LogEntry["category"], string> = {
         AUTH: "background: #0070f3; color: white;",
         SESSION: "background: #00e599; color: black;",
@@ -100,9 +100,23 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         details || ""
       );
 
+      // Send to server API route to print directly to TERMINAL STDOUT
+      fetch("/api/log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category,
+          level,
+          message,
+          details,
+          userEmail: user?.email || (user?.isAnonymous ? "Guest Account" : user?.uid || "Anonymous"),
+          sessionId,
+        }),
+      }).catch(() => {});
+
       setLogs((prev) => [entry, ...prev.slice(0, 199)]);
     },
-    []
+    [user, sessionId]
   );
 
   const clearLogs = () => {

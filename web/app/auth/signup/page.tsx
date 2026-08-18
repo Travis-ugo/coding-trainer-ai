@@ -31,9 +31,9 @@ export default function SignUpPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.replace("/");
+      window.location.href = "/";
     }
-  }, [user, loading, router]);
+  }, [user, loading]);
 
   const handleGoogleSignIn = async () => {
     setError(null);
@@ -41,7 +41,7 @@ export default function SignUpPage() {
     setGoogleLoading(true);
     try {
       await signInWithGoogle();
-      router.replace("/");
+      window.location.href = "/";
     } catch (err: unknown) {
       setError(formatAuthError(err));
       setGoogleLoading(false);
@@ -55,7 +55,7 @@ export default function SignUpPage() {
     setIsSubmitting(true);
     try {
       await signUpWithEmail(email, password);
-      router.replace("/");
+      window.location.href = "/";
     } catch (err: unknown) {
       setError(formatAuthError(err));
       setIsSubmitting(false);
@@ -68,7 +68,7 @@ export default function SignUpPage() {
     setIsSubmitting(true);
     try {
       await signInAnonymouslyUser();
-      router.replace("/");
+      window.location.href = "/";
     } catch (err: unknown) {
       setError(formatAuthError(err));
       setIsSubmitting(false);
@@ -80,7 +80,7 @@ export default function SignUpPage() {
       <div className="min-h-screen w-full bg-[#000000] text-white flex flex-col items-center justify-center space-y-3 font-mono text-xs">
         <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-none animate-spin" />
         <p className="text-[#888888]">
-          {user ? "Redirecting to home workspace..." : "Authenticating..."}
+          {user ? "Authenticated! Opening Home Workspace..." : "Authenticating..."}
         </p>
       </div>
     );

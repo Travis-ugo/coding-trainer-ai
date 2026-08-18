@@ -16,9 +16,9 @@ function MainStudioWorkspace() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/auth/signin");
+      window.location.href = "/auth/signin";
     }
-  }, [user, loading, router]);
+  }, [user, loading]);
 
   if (loading) {
     return (

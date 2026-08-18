@@ -119,9 +119,6 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   Topic mastery breakdown (Python Docs §4-9).
                 </p>
               </div>
-              <div className="bg-[#111111] border border-[#333333] text-white font-bold text-xs px-3 py-1 rounded-none font-mono">
-                {analyticsData?.predicted_grade || (loading ? "Syncing..." : "--")}
-              </div>
             </div>
 
             <div className="bg-[#0a0a0a] border border-[#222222] rounded-none p-5 space-y-4">

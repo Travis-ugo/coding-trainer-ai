@@ -85,7 +85,7 @@ class GradeAnalyticsEngine:
         elif overall_pct > 0.0:
             pred_grade = f"❌ FAIL ({overall_pct:.1f}%)"
         else:
-            pred_grade = "🆕 NOT EVALUATED YET (0.0%)"
+            pred_grade = "Not Evaluated"
 
         return StudentAnalytics(
             user_name=user_name,
