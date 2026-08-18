@@ -93,7 +93,7 @@ body {
 }
 
 .bg-radial-auth-glow {
-  background: radial-gradient(circle at 50% 30%, rgba(0, 112, 243, 0.15) 0%, rgba(0, 229, 153, 0.08) 35%, rgba(0, 0, 0, 0) 70%);
+  background: radial-gradient(circle at 50% 30%, rgba(0, 112, 243, 0.12) 0%, rgba(255, 255, 255, 0.02) 40%, rgba(0, 0, 0, 0) 70%);
 }
 
 .bg-grid-pattern {
@@ -149,6 +149,40 @@ body {
 
 .animate-subtle-pulse {
   animation: subtle-pulse 3s infinite ease-in-out;
+}
+
+/* Zero Gravity Space Float Animations */
+@keyframes float-space-1 {
+  0% { transform: translate(0px, 0px) rotate(0deg) scale(1); }
+  25% { transform: translate(18px, -28px) rotate(90deg) scale(1.1); }
+  50% { transform: translate(-22px, -48px) rotate(180deg) scale(1) rotateX(180deg); }
+  75% { transform: translate(-38px, -22px) rotate(270deg) scale(0.9); }
+  100% { transform: translate(0px, 0px) rotate(360deg) scale(1); }
+}
+
+@keyframes float-space-2 {
+  0% { transform: translate(0px, 0px) rotate(0deg); }
+  33% { transform: translate(-28px, 22px) rotate(-120deg) rotateY(180deg); }
+  66% { transform: translate(22px, -32px) rotate(-240deg); }
+  100% { transform: translate(0px, 0px) rotate(-360deg); }
+}
+
+@keyframes float-space-3 {
+  0% { transform: translate(0px, 0px) rotate(0deg) scale(0.9); }
+  50% { transform: translate(32px, 38px) rotate(180deg) scale(1.15) rotateZ(180deg); }
+  100% { transform: translate(0px, 0px) rotate(360deg) scale(0.9); }
+}
+
+.animate-space-float-1 {
+  animation: float-space-1 14s infinite ease-in-out;
+}
+
+.animate-space-float-2 {
+  animation: float-space-2 18s infinite ease-in-out;
+}
+
+.animate-space-float-3 {
+  animation: float-space-3 12s infinite ease-in-out;
 }
 
 

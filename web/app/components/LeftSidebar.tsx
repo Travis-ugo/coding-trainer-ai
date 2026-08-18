@@ -26,12 +26,6 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
   return (
     <aside className="w-64 bg-[#0a0a0a] border-r border-[#222222] flex flex-col h-[calc(100vh-3.5rem)] shrink-0">
-      {/* Dashboard Section Header */}
-      <div className="px-4 py-3 border-b border-[#222222] text-xs font-semibold text-[#888888] uppercase tracking-wider flex items-center justify-between">
-        <span>Workspace Navigation</span>
-        <ChevronRight className="w-3.5 h-3.5 text-[#666666]" />
-      </div>
-
       {/* Navigation Links */}
       <div className="flex-1 overflow-y-auto p-3 space-y-5 text-xs">
         {/* Core Dashboard Views */}
@@ -60,7 +54,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                   : "text-[#a1a1a1] hover:bg-[#111111] hover:text-white"
               }`}
             >
-              <Clock className="w-4 h-4 text-[#00e599]" />
+              <Clock className="w-4 h-4 text-[#0070f3]" />
               <span>15-Min Power Session</span>
             </button>
 
@@ -84,7 +78,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                   : "text-[#a1a1a1] hover:bg-[#111111] hover:text-white"
               }`}
             >
-              <Sparkles className="w-4 h-4 text-[#00e599]" />
+              <Sparkles className="w-4 h-4 text-[#0070f3]" />
               <span>Gemini AI Socratic Tutor</span>
             </button>
 
