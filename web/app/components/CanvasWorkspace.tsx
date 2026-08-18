@@ -2,11 +2,103 @@
 
 import React, { useState } from "react";
 import { useTrainerContext, SyntaxEvalResult, GeminiResponse } from "../context/TrainerContext";
-import { Sparkles, Code, Cpu, Layers, BookOpen, Clock, CheckCircle, RotateCcw, Loader2 } from "lucide-react";
+import { Sparkles, Code, Cpu, Layers, BookOpen, Clock, CheckCircle, RotateCcw, Loader2, HelpCircle } from "lucide-react";
 
 interface CanvasWorkspaceProps {
   activeTool: string;
   selectedModule: string;
+}
+
+function QuestionCard({ question, index }: { question: any; index: number }) {
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const [userInput, setUserInput] = useState<string>("");
+
+  const isMCQ = Array.isArray(question.options) && question.options.length > 0;
+  const isCorrect = isMCQ
+    ? selectedOption === question.correct_answer
+    : userInput.trim().toLowerCase() === question.correct_answer.trim().toLowerCase();
+
+  return (
+    <div className="bg-[#0a0a0a] border border-[#222222] p-4 rounded-none space-y-3 font-mono text-xs">
+      <div className="flex items-center justify-between">
+        <span className="font-bold text-[#0070f3]">Question {index + 1}</span>
+        {submitted && (
+          <span
+            className={`px-2 py-0.5 text-[10px] font-bold ${
+              isCorrect
+                ? "bg-[#00e599]/20 text-[#00e599] border border-[#00e599]/40"
+                : "bg-[#ef4444]/20 text-[#ef4444] border border-[#ef4444]/40"
+            }`}
+          >
+            {isCorrect ? "✓ Correct!" : "❌ Needs Review"}
+          </span>
+        )}
+      </div>
+
+      <p className="text-white font-medium whitespace-pre-wrap leading-relaxed">{question.prompt}</p>
+
+      {/* Multiple Choice Options */}
+      {isMCQ ? (
+        <div className="space-y-1.5 pt-1">
+          {question.options.map((opt: string, optIdx: number) => (
+            <button
+              key={optIdx}
+              onClick={() => {
+                setSelectedOption(opt);
+                setSubmitted(true);
+              }}
+              className={`w-full text-left p-2.5 rounded-none border text-xs transition-all ${
+                submitted && opt === question.correct_answer
+                  ? "bg-[#00e599]/10 border-[#00e599] text-[#00e599] font-semibold"
+                  : submitted && selectedOption === opt
+                  ? "bg-[#ef4444]/10 border-[#ef4444] text-[#ef4444]"
+                  : selectedOption === opt
+                  ? "bg-[#1f1f1f] border-white text-white"
+                  : "bg-[#111111] border-[#222222] text-[#888888] hover:text-white hover:border-[#444444]"
+              }`}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+      ) : (
+        /* Code Output or Fill-in Answer */
+        <div className="space-y-2 pt-1">
+          <input
+            type="text"
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            placeholder="Type your answer..."
+            className="w-full bg-[#111111] border border-[#2a2a2a] focus:border-[#0070f3] text-white p-2.5 text-xs focus:outline-none"
+          />
+          <button
+            onClick={() => setSubmitted(true)}
+            className="btn-next-secondary text-xs px-3 py-1"
+          >
+            Check Answer
+          </button>
+        </div>
+      )}
+
+      {/* Explanation & Distinction Tip */}
+      {submitted && (
+        <div className="pt-2 border-t border-[#222222] space-y-2">
+          <div className="text-[#e2e8f0] bg-[#111111] p-3 border border-[#222222] leading-relaxed">
+            <span className="font-bold text-white">Explanation: </span>
+            {question.explanation}
+          </div>
+
+          {question.uk_msc_distinction_tip && (
+            <div className="text-[#0070f3] bg-[#0070f3]/10 p-2.5 border border-[#0070f3]/30 leading-relaxed text-[11px]">
+              <span className="font-bold">🏆 MSc Distinction Tip: </span>
+              {question.uk_msc_distinction_tip}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
@@ -116,7 +208,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   Grade Readiness Heatmap
                 </h2>
                 <p className="text-xs text-[#888888] mt-0.5">
-                  Topic mastery breakdown (Python Docs §4-9).
+                  Topic mastery breakdown.
                 </p>
               </div>
             </div>
@@ -285,76 +377,149 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           </div>
         )}
 
-        {/* TOOL 4: Real Anti-Copilot Syntax Gym */}
+        {/* TOOL 4: Real Teaching Module & Syntax Gym */}
         {activeTool === "syntax" && (
-          <div className="space-y-5">
+          <div className="space-y-6">
             <div className="flex items-center justify-between border-b border-[#222222] pb-4">
               <div>
                 <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Code className="w-4 h-4 text-[#0070f3]" />
+                  <BookOpen className="w-4 h-4 text-[#0070f3]" />
                   {activeModuleData.title}
                 </h2>
-                <p className="text-xs text-[#888888] mt-0.5">AST Syntax Drill (Python Docs Sandbox)</p>
+                <p className="text-xs text-[#888888] mt-0.5">Interactive Concept Lecture, Examples & Practice Questions</p>
               </div>
             </div>
 
-            <div className="space-y-2">
-              {dynamicModule?.summary && (
-                <p className="text-xs text-[#a1a1a1] font-mono leading-relaxed">
-                  {dynamicModule.summary}
-                </p>
-              )}
+            {/* 1. CONCEPT EXPLANATION & LECTURE */}
+            <div className="bg-[#0a0a0a] border border-[#222222] border-l-4 border-l-[#0070f3] p-4 space-y-3 font-mono text-xs">
+              <div className="flex items-center gap-2 text-[#0070f3] font-bold">
+                <BookOpen className="w-4 h-4" />
+                <span>1. CONCEPT EXPLANATION</span>
+              </div>
+              <p className="text-white leading-relaxed font-medium">
+                {dynamicModule?.summary || "Variables are dynamic reference labels pointing to typed objects in memory."}
+              </p>
 
               {dynamicModule?.non_cs_analogy && (
-                <div className="bg-[#0a0a0a] border border-[#222222] border-l-2 border-l-[#0070f3] rounded-none p-3 text-xs font-mono">
-                  <div className="text-[#e2e8f0] leading-relaxed">
-                    💡 <span className="font-semibold text-white">Concept:</span> {dynamicModule.non_cs_analogy}
-                  </div>
+                <div className="bg-[#111111] border border-[#222222] p-3 text-xs text-[#e2e8f0] leading-relaxed">
+                  💡 <span className="font-semibold text-white">Analogy:</span> {dynamicModule.non_cs_analogy}
+                </div>
+              )}
+
+              {dynamicModule?.common_traps && (
+                <div className="bg-[#f5a623]/10 border border-[#f5a623]/30 p-2.5 text-[#f5a623] text-xs">
+                  ⚠️ <span className="font-bold">Common Trap:</span> {dynamicModule.common_traps}
                 </div>
               )}
             </div>
 
-            <div className="bg-[#0a0a0a] border border-[#222222] rounded-none p-4 space-y-3">
-              <label className="text-xs text-[#888888] font-mono block">
-                Write Python implementation:
-              </label>
-              <textarea
-                key={selectedModule}
-                defaultValue={activeModuleData.code}
-                onChange={(e) => setSyntaxCode(e.target.value)}
-                rows={7}
-                className="w-full bg-[#111111] border border-[#2e2e2e] rounded-none p-3 text-xs font-mono text-white focus:outline-none focus:border-[#0070f3]"
-              />
-
-              <button
-                onClick={handleEvaluateSyntax}
-                disabled={syntaxEvaluating}
-                className="btn-next-primary text-xs px-3.5 py-1.5 flex items-center gap-2"
-              >
-                {syntaxEvaluating ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Evaluating AST...</span>
-                  </>
-                ) : (
-                  <span>Evaluate AST & Syntax</span>
-                )}
-              </button>
-
-              {syntaxError && (
-                <div className="bg-[#7f1d1d]/30 border border-[#ef4444] p-3 rounded-none text-xs font-mono text-[#ef4444]">
-                  ❌ {syntaxError}
+            {/* 2. SEVERAL CODE EXAMPLES */}
+            {dynamicModule?.code_examples && dynamicModule.code_examples.length > 0 && (
+              <div className="space-y-3 font-mono text-xs">
+                <div className="flex items-center gap-2 text-white font-bold">
+                  <Code className="w-4 h-4 text-[#00e599]" />
+                  <span>2. PRACTICAL CODE EXAMPLES</span>
                 </div>
-              )}
 
-              {syntaxFeedback && (
-                <div className="bg-[#111111] border border-[#2e2e2e] p-3 rounded-none text-xs font-mono text-[#e2e8f0] space-y-1">
-                  <div className="font-bold text-white">
-                    Score: {syntaxFeedback.score || 100}% | AST Valid: {syntaxFeedback.ast_valid ? "YES" : "NO"}
+                <div className="grid grid-cols-1 gap-3">
+                  {dynamicModule.code_examples.map((ex, idx) => (
+                    <div key={idx} className="bg-[#0a0a0a] border border-[#222222] p-4 space-y-2.5">
+                      <div className="flex items-center gap-2 font-bold text-white">
+                        <span className="bg-[#00e599]/20 text-[#00e599] border border-[#00e599]/30 px-1.5 py-0.5 text-[10px]">
+                          EXAMPLE {idx + 1}
+                        </span>
+                        <span>{ex.title}</span>
+                      </div>
+
+                      {/* Code Block */}
+                      <pre className="bg-[#111111] border border-[#222222] p-3 text-xs font-mono text-[#00e599] overflow-x-auto whitespace-pre-wrap">
+                        {ex.code}
+                      </pre>
+
+                      {/* Expected Output */}
+                      <div className="bg-[#000000] border border-[#222222] p-2.5 text-[11px] font-mono text-[#a1a1a1]">
+                        <span className="text-[#666666] uppercase text-[9px] block mb-0.5">Expected Output:</span>
+                        <pre className="text-white whitespace-pre-wrap">{ex.output}</pre>
+                      </div>
+
+                      {/* Explanation */}
+                      <p className="text-[#888888] leading-relaxed">{ex.explanation}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 3. PRACTICE QUESTIONS AFTER EACH TOPIC LECTURE */}
+            {dynamicModule?.practice_questions && dynamicModule.practice_questions.length > 0 && (
+              <div className="space-y-3 pt-2 font-mono text-xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-white font-bold">
+                    <HelpCircle className="w-4 h-4 text-[#a855f7]" />
+                    <span>3. TOPIC KNOWLEDGE CHECK & QUESTIONS</span>
                   </div>
-                  <div className="text-white">{syntaxFeedback.feedback}</div>
+                  <span className="text-[10px] text-[#888888]">
+                    {dynamicModule.practice_questions.length} Questions
+                  </span>
                 </div>
-              )}
+
+                <div className="space-y-4">
+                  {dynamicModule.practice_questions.map((q, qIdx) => (
+                    <QuestionCard key={q.id || qIdx} question={q} index={qIdx} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 4. HANDS-ON AST SYNTAX DRILL PLAYGROUND */}
+            <div className="space-y-3 pt-2 font-mono text-xs">
+              <div className="flex items-center gap-2 text-white font-bold">
+                <Code className="w-4 h-4 text-[#0070f3]" />
+                <span>4. HANDS-ON AST SYNTAX DRILL</span>
+              </div>
+
+              <div className="bg-[#0a0a0a] border border-[#222222] rounded-none p-4 space-y-3">
+                <label className="text-xs text-[#888888] font-mono block">
+                  Write Python implementation:
+                </label>
+                <textarea
+                  key={selectedModule}
+                  defaultValue={activeModuleData.code}
+                  onChange={(e) => setSyntaxCode(e.target.value)}
+                  rows={7}
+                  className="w-full bg-[#111111] border border-[#2e2e2e] rounded-none p-3 text-xs font-mono text-white focus:outline-none focus:border-[#0070f3]"
+                />
+
+                <button
+                  onClick={handleEvaluateSyntax}
+                  disabled={syntaxEvaluating}
+                  className="btn-next-primary text-xs px-3.5 py-1.5 flex items-center gap-2"
+                >
+                  {syntaxEvaluating ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Evaluating AST...</span>
+                    </>
+                  ) : (
+                    <span>Evaluate AST & Syntax</span>
+                  )}
+                </button>
+
+                {syntaxError && (
+                  <div className="bg-[#7f1d1d]/30 border border-[#ef4444] p-3 rounded-none text-xs font-mono text-[#ef4444]">
+                    ❌ {syntaxError}
+                  </div>
+                )}
+
+                {syntaxFeedback && (
+                  <div className="bg-[#111111] border border-[#2e2e2e] p-3 rounded-none text-xs font-mono text-[#e2e8f0] space-y-1">
+                    <div className="font-bold text-white">
+                      Score: {syntaxFeedback.score || 100}% | AST Valid: {syntaxFeedback.ast_valid ? "YES" : "NO"}
+                    </div>
+                    <div className="text-white">{syntaxFeedback.feedback}</div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

@@ -24,6 +24,14 @@ class PracticeQuestion:
 
 
 @dataclass
+class CodeExample:
+    title: str
+    code: str
+    output: str
+    explanation: str
+
+
+@dataclass
 class PythonTopicModule:
     id: str
     title: str
@@ -33,6 +41,7 @@ class PythonTopicModule:
     syntax_guide: str
     common_traps: str
     doc_reference_key: str
+    code_examples: List[CodeExample] = field(default_factory=list)
     practice_questions: List[PracticeQuestion] = field(default_factory=list)
 
 

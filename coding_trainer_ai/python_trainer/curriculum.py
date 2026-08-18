@@ -1,5 +1,5 @@
 from typing import List, Dict, Optional
-from coding_trainer_ai.python_trainer.models import PythonTopicModule, PracticeQuestion, QuestionType
+from coding_trainer_ai.python_trainer.models import PythonTopicModule, PracticeQuestion, QuestionType, CodeExample
 
 
 class PythonCurriculum:
@@ -19,7 +19,7 @@ class PythonCurriculum:
                 id="py_mod_01",
                 title="Variables & Dynamic Typing",
                 order=1,
-                summary="Variables are dynamic reference labels pointing to typed objects in memory (Python Docs §4.2).",
+                summary="Variables are dynamic reference labels pointing to typed objects in memory.",
                 non_cs_analogy="Variables act like sticky name tags. Assigning b = a attaches tag 'b' to the same object as 'a'. Rebinding a variable moves the tag without copying bytes.",
                 syntax_guide=(
                     "# Dynamic variable binding\n"
@@ -29,6 +29,20 @@ class PythonCurriculum:
                 ),
                 common_traps="Thinking `x = y` creates a copy. It creates reference aliasing to the same memory object.",
                 doc_reference_key="informal_intro",
+                code_examples=[
+                    CodeExample(
+                        title="Example 1: Dynamic Rebinding & Type Identification",
+                        code="val = 100\nprint('Initial type:', type(val))\nval = 'Hello Python'\nprint('New type:', type(val))",
+                        output="Initial type: <class 'int'>\nNew type: <class 'str'>",
+                        explanation="Python evaluates variable types dynamically at runtime. Assigning val = 'Hello Python' moves the name tag 'val' to point to a new string object."
+                    ),
+                    CodeExample(
+                        title="Example 2: Reference Aliasing with Mutable Objects",
+                        code="a = [1, 2, 3]\nb = a\nb.append(4)\nprint('a:', a)\nprint('b:', b)",
+                        output="a: [1, 2, 3, 4]\nb: [1, 2, 3, 4]",
+                        explanation="Assigning b = a does not copy the list. Both 'a' and 'b' point to the exact same list object in memory, so modifying 'b' modifies 'a'."
+                    )
+                ],
                 practice_questions=[
                     PracticeQuestion(
                         id="q_01_01",
@@ -65,7 +79,7 @@ class PythonCurriculum:
                 id="py_mod_02",
                 title="Conditionals & Truthiness",
                 order=2,
-                summary="Control flow execution paths and boolean truth value testing (Python Docs §4.1).",
+                summary="Control flow execution paths and boolean truth value testing.",
                 non_cs_analogy="Evaluates conditions top-to-bottom. Empty collections ([], ''), 0, and None evaluate to False in boolean context.",
                 syntax_guide=(
                     "score = 75\n"
@@ -109,7 +123,7 @@ class PythonCurriculum:
                 id="py_mod_03",
                 title="Loops & Iteration",
                 order=3,
-                summary="Sequence iteration with for/while loops, range(), enumerate(), and zip() (Python Docs §4.2-4.6).",
+                summary="Sequence iteration with for/while loops, range(), enumerate(), and zip().",
                 non_cs_analogy="Iterates over items sequentially. range() generates numbers lazily; enumerate() yields (index, item) pairs.",
                 syntax_guide=(
                     "items = ['a', 'b', 'c']\n"
@@ -138,7 +152,7 @@ class PythonCurriculum:
                 id="py_mod_04",
                 title="Data Structures (Lists, Tuples, Dicts, Sets)",
                 order=4,
-                summary="Built-in container types, mutability rules, and hash maps (Python Docs §5.1-5.5).",
+                summary="Built-in container types, mutability rules, and hash maps.",
                 non_cs_analogy="Lists [] are mutable sequences; Tuples () are immutable; Dicts {} map unique hashable keys to values; Sets {} store unique elements.",
                 syntax_guide=(
                     "lst = [1, 2, 3]        # Mutable list\n"
@@ -168,7 +182,7 @@ class PythonCurriculum:
                 id="py_mod_05",
                 title="Functions & LEGB Scope",
                 order=5,
-                summary="Function definitions, parameter passing, and LEGB variable resolution (Python Docs §4.7).",
+                summary="Function definitions, parameter passing, and LEGB variable resolution.",
                 non_cs_analogy="Functions encapsulate reusable logic. Scopes resolve in order: Local -> Enclosing -> Global -> Built-in.",
                 syntax_guide=(
                     "def add(a, b=10):\n"
@@ -198,7 +212,7 @@ class PythonCurriculum:
                 id="py_mod_06",
                 title="Comprehensions & Generators",
                 order=6,
-                summary="Concise syntax for creating lists/dicts and memory-efficient generators (Python Docs §5.1.3).",
+                summary="Concise syntax for creating lists/dicts and memory-efficient generators.",
                 non_cs_analogy="Transforms iterables into new collections in a single line. Generators stream values on demand with low RAM usage.",
                 syntax_guide=(
                     "squares = [x**2 for x in range(5) if x % 2 == 0]\n"
@@ -226,7 +240,7 @@ class PythonCurriculum:
                 id="py_mod_07",
                 title="Error & Exception Handling",
                 order=7,
-                summary="Catching runtime errors with try/except/finally blocks (Python Docs §8).",
+                summary="Catching runtime errors with try/except/finally blocks.",
                 non_cs_analogy="Catch specific runtime exceptions gracefully. The finally block executes unconditionally for resource cleanup.",
                 syntax_guide=(
                     "try:\n"
@@ -258,7 +272,7 @@ class PythonCurriculum:
                 id="py_mod_08",
                 title="Object-Oriented Programming (OOP)",
                 order=8,
-                summary="Class blueprints, instance attributes (self), and inheritance (Python Docs §9).",
+                summary="Class blueprints, instance attributes (self), and inheritance.",
                 non_cs_analogy="Classes are object blueprints. self refers to the current instance. Subclasses inherit parent methods.",
                 syntax_guide=(
                     "class Bot:\n"
@@ -289,7 +303,7 @@ class PythonCurriculum:
                 id="py_mod_09",
                 title="Standard Library & File I/O",
                 order=9,
-                summary="File access with context managers (with open) and stdlib modules (Python Docs §7.2).",
+                summary="File access with context managers (with open) and stdlib modules.",
                 non_cs_analogy="Context managers (with open) automatically close files when done, even if exceptions occur.",
                 syntax_guide=(
                     "import json\n"

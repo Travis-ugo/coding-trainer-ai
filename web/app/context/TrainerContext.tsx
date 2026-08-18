@@ -70,13 +70,33 @@ export interface GeminiResponse {
   socratic_question: string;
 }
 
+export interface CodeExampleItem {
+  title: string;
+  code: string;
+  output: string;
+  explanation: string;
+}
+
+export interface PracticeQuestionItem {
+  id: string;
+  prompt: string;
+  options?: string[];
+  correct_answer: string;
+  explanation: string;
+  analogy_hint?: string;
+  uk_msc_distinction_tip?: string;
+}
+
 export interface ModuleItem {
   id: string;
   title: string;
   summary: string;
   non_cs_analogy: string;
   syntax_guide: string;
+  common_traps?: string;
   order: number;
+  code_examples?: CodeExampleItem[];
+  practice_questions?: PracticeQuestionItem[];
 }
 
 interface TrainerContextType {
