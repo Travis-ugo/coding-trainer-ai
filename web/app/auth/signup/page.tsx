@@ -40,8 +40,12 @@ export default function SignUpPage() {
     setSuccessMsg(null);
     setGoogleLoading(true);
     try {
-      await signInWithGoogle();
-      window.location.href = "/";
+      const userRes = await signInWithGoogle();
+      if (userRes) {
+        window.location.href = "/";
+      } else {
+        setGoogleLoading(false);
+      }
     } catch (err: unknown) {
       setError(formatAuthError(err));
       setGoogleLoading(false);

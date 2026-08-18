@@ -27,21 +27,21 @@ export async function POST(req: Request) {
     let categoryBadge = `${colors.cyan}[SYSTEM]${colors.reset}`;
     let icon = "ℹ️";
 
+    if (level === "SUCCESS") icon = "🔑";
+    else if (level === "WARN") icon = "⚠️";
+    else if (level === "ERROR") icon = "❌";
+    else icon = "ℹ️";
+
     if (category === "AUTH") {
-      categoryBadge = `${colors.bgBlue} AUTH ${colors.reset}`;
-      icon = level === "SUCCESS" ? "🔑" : "⚠️";
+      categoryBadge = level === "ERROR" ? `${colors.red} AUTH ${colors.reset}` : `${colors.bgBlue} AUTH ${colors.reset}`;
     } else if (category === "SESSION") {
       categoryBadge = `${colors.bgGreen} SESSION ${colors.reset}`;
-      icon = "⚡";
     } else if (category === "NAVIGATION") {
       categoryBadge = `${colors.magenta}[NAV]${colors.reset}`;
-      icon = "🧭";
     } else if (category === "SYNTAX") {
       categoryBadge = `${colors.bgMagenta} SYNTAX ${colors.reset}`;
-      icon = "🐍";
     } else if (category === "API") {
       categoryBadge = `${colors.bgYellow} API ${colors.reset}`;
-      icon = "🌐";
     }
 
     const detailsStr = details ? ` | ${typeof details === "object" ? JSON.stringify(details) : details}` : "";
