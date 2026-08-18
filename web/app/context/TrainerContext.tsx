@@ -134,8 +134,10 @@ export const TrainerProvider: React.FC<{ children: React.ReactNode }> = ({ child
           });
         }
       },
-      (err) => {
-        console.warn("Firestore snapshot listener warning:", err);
+      (err: any) => {
+        if (err?.code !== "permission-denied" && err?.message?.indexOf("permission") === -1) {
+          console.warn("Firestore snapshot listener notice:", err);
+        }
       }
     );
 
@@ -186,8 +188,10 @@ export const TrainerProvider: React.FC<{ children: React.ReactNode }> = ({ child
                   { merge: true }
                 );
               }
-            } catch (fsErr) {
-              console.warn("Firestore user record init warning:", fsErr);
+            } catch (fsErr: any) {
+              if (fsErr?.code !== "permission-denied" && fsErr?.message?.indexOf("permission") === -1) {
+                console.warn("Firestore user record init notice:", fsErr);
+              }
             }
           }
         } else {

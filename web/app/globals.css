@@ -82,64 +82,7 @@ body {
   border-radius: 0px !important;
 }
 
-/* Glassmorphic Auth Box & Glowing Backdrop Utilities (0 Corner Radius) */
-.glass-auth-box {
-  background: rgba(10, 10, 10, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 0px !important;
-  box-shadow: 0 0 50px rgba(0, 112, 243, 0.12), 0 20px 40px rgba(0, 0, 0, 0.8);
-}
 
-.bg-radial-auth-glow {
-  background: radial-gradient(circle at 50% 30%, rgba(0, 112, 243, 0.12) 0%, rgba(255, 255, 255, 0.02) 40%, rgba(0, 0, 0, 0) 70%);
-}
-
-.bg-grid-pattern {
-  background-size: 32px 32px;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-}
-
-/* Google OAuth Branded Box Button */
-.btn-google-auth {
-  background-color: #161616;
-  border: 1px solid #2e2e2e;
-  color: #ffffff;
-  border-radius: 0px !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-google-auth:hover {
-  background-color: #1f1f1f;
-  border-color: rgba(66, 133, 244, 0.6);
-  box-shadow: 0 0 20px rgba(66, 133, 244, 0.25);
-  transform: translateY(-1px);
-}
-
-.btn-google-auth:active {
-  transform: translateY(0);
-}
-
-/* Auth Input Custom Focus States (Box Shape) */
-.auth-input {
-  background-color: #0d0d0d;
-  border: 1px solid #2a2a2a;
-  color: #ffffff;
-  border-radius: 0px !important;
-  transition: all 0.15s ease;
-}
-
-.auth-input:focus {
-  outline: none;
-  border-color: #0070f3;
-  box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.2);
-  background-color: #111111;
-}
 
 /* Animated Pulse Badge */
 @keyframes subtle-pulse {

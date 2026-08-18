@@ -35,6 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Sync user profile data to Firestore
   const syncUserToFirestore = async (currentUser: User) => {
+    if (!currentUser || !currentUser.uid) return;
     try {
       const userRef = doc(db, "users", currentUser.uid);
       await setDoc(
@@ -50,8 +51,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
         { merge: true }
       );
-    } catch (fsErr) {
-      console.warn("Firestore user profile sync warning:", fsErr);
+    } catch (fsErr: any) {
+      if (fsErr?.code !== "permission-denied" && fsErr?.message?.indexOf("permission") === -1) {
+        console.warn("Firestore user profile sync notice:", fsErr);
+      }
     }
   };
 
@@ -60,20 +63,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (currentUser) {
         setUser(currentUser);
         await syncUserToFirestore(currentUser);
-        setLoading(false);
       } else {
-        // Auto-signin anonymously on first load for friction-free guest experience
-        try {
-          const res = await signInAnonymously(auth);
-          setUser(res.user);
-          await syncUserToFirestore(res.user);
-        } catch (err) {
-          console.warn("Anonymous auth initial fallback:", err);
-          setUser(null);
-        } finally {
-          setLoading(false);
-        }
+        setUser(null);
       }
+      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -131,6 +124,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.user) {
         await syncUserToFirestore(res.user);
       }
+    } catch (err: unknown) {
+      console.warn("Guest sign-in attempt:", err);
+      throw new Error("Guest access is currently disabled on Firebase. Please use Google or Email Sign In.");
     } finally {
       setLoading(false);
     }
@@ -140,11 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     try {
       await signOut(auth);
-      // Auto-reconnect anonymously after sign out
-      const res = await signInAnonymously(auth);
-      if (res.user) {
-        await syncUserToFirestore(res.user);
-      }
+      setUser(null);
     } finally {
       setLoading(false);
     }
