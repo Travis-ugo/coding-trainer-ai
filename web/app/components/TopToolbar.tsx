@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { MousePointer, Layout, Code, Bot, Sparkles, Layers, User as UserIcon, LogOut, ShieldCheck } from "lucide-react";
+import { MousePointer, Layout, Code, Bot, Sparkles, Layers, User as UserIcon, LogOut, ShieldCheck, Activity } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { ActivityLogModal } from "./ActivityLogModal";
 
 interface TopToolbarProps {
   activeTool: string;
@@ -17,6 +18,7 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({
   aiActive,
 }) => {
   const { user, signOutUser } = useAuth();
+  const [showMonitor, setShowMonitor] = useState(false);
 
   return (
     <header className="h-14 bg-[#000000] border-b border-[#222222] px-5 flex items-center justify-between shrink-0">
@@ -102,6 +104,16 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({
 
       {/* Right Actions & User Identity Link to Dedicated Auth Screen */}
       <div className="flex items-center gap-3">
+        {/* Live Activity & Session Monitor Toggle Button */}
+        <button
+          onClick={() => setShowMonitor(true)}
+          className="flex items-center gap-1.5 bg-[#00e599]/10 hover:bg-[#00e599]/20 border border-[#00e599]/40 text-[#00e599] px-2.5 py-1.5 rounded-none text-xs font-mono font-medium transition-all"
+        >
+          <span className="w-2 h-2 rounded-full bg-[#00e599] animate-pulse" />
+          <Activity className="w-3.5 h-3.5" />
+          <span>Live Monitor</span>
+        </button>
+
         {aiActive && (
           <div className="hidden sm:flex items-center gap-1.5 bg-[#111111] text-white border border-[#333333] px-2.5 py-1 rounded-none text-xs font-medium">
             <Sparkles className="w-3.5 h-3.5 text-[#0070f3]" />
@@ -134,10 +146,12 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({
             <LogOut className="w-3.5 h-3.5" />
           </button>
         )}
+
+        <ActivityLogModal
+          isOpen={showMonitor}
+          onClose={() => setShowMonitor(false)}
+        />
       </div>
     </header>
   );
 };
-
-
-

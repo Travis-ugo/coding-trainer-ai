@@ -5,6 +5,8 @@ import {
   User,
   onAuthStateChanged,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -59,10 +61,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    // Process redirect result if page returned from Google OAuth redirect
+    getRedirectResult(auth)
+      .then((res) => {
+        if (res?.user) {
+          setUser(res.user);
+          syncUserToFirestore(res.user).catch((err) => {
+            console.warn("Redirect profile sync notice:", err);
+          });
+        }
+      })
+      .catch((err) => {
+        console.warn("Redirect sign-in notice:", err);
+      });
+
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        await syncUserToFirestore(currentUser);
+        syncUserToFirestore(currentUser).catch((err) => {
+          console.warn("Firestore user profile sync notice:", err);
+        });
       } else {
         setUser(null);
       }
@@ -77,7 +95,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await signInWithPopup(auth, googleProvider);
       if (res.user) {
-        await syncUserToFirestore(res.user);
+        setUser(res.user);
+        syncUserToFirestore(res.user).catch((err) => {
+          console.warn("Firestore user profile sync notice:", err);
+        });
+      }
+    } catch (err: any) {
+      if (
+        err?.code === "auth/popup-blocked" ||
+        err?.code === "auth/cancelled-popup-request" ||
+        err?.message?.includes("Cross-Origin-Opener-Policy")
+      ) {
+        await signInWithRedirect(auth, googleProvider);
+      } else if (err?.code === "auth/popup-closed-by-user") {
+        console.log("Google sign-in popup was closed by user.");
+      } else {
+        throw err;
       }
     } finally {
       setLoading(false);
@@ -89,7 +122,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await signInWithEmailAndPassword(auth, email, pass);
       if (res.user) {
-        await syncUserToFirestore(res.user);
+        setUser(res.user);
+        syncUserToFirestore(res.user).catch((err) => {
+          console.warn("Firestore user profile sync notice:", err);
+        });
       }
     } finally {
       setLoading(false);
@@ -101,7 +137,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await createUserWithEmailAndPassword(auth, email, pass);
       if (res.user) {
-        await syncUserToFirestore(res.user);
+        setUser(res.user);
+        syncUserToFirestore(res.user).catch((err) => {
+          console.warn("Firestore user profile sync notice:", err);
+        });
       }
     } finally {
       setLoading(false);
@@ -122,7 +161,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await signInAnonymously(auth);
       if (res.user) {
-        await syncUserToFirestore(res.user);
+        setUser(res.user);
+        syncUserToFirestore(res.user).catch((err) => {
+          console.warn("Firestore user profile sync notice:", err);
+        });
       }
     } catch (err: unknown) {
       console.warn("Guest sign-in attempt:", err);

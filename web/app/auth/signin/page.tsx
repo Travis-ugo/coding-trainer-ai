@@ -17,6 +17,7 @@ export default function SignInPage() {
     signInWithGoogle,
     signInWithEmail,
     signInAnonymouslyUser,
+    signOutUser,
   } = useAuth();
   const router = useRouter();
 
@@ -78,7 +79,9 @@ export default function SignInPage() {
     return (
       <div className="min-h-screen w-full bg-[#000000] text-white flex flex-col items-center justify-center space-y-3 font-mono text-xs">
         <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-none animate-spin" />
-        <p className="text-[#888888]">Authenticating...</p>
+        <p className="text-[#888888]">
+          {user ? "Redirecting to home workspace..." : "Authenticating..."}
+        </p>
       </div>
     );
   }
