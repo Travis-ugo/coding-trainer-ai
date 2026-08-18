@@ -3,32 +3,20 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AuthProvider, useAuth } from "../../context/AuthContext";
-import { TrainerProvider } from "../../context/TrainerContext";
+import { useAuth } from "../../context/AuthContext";
 import AuthHeader from "../components/AuthHeader";
 import AuthHero from "../components/AuthHero";
 import GoogleIcon from "../components/GoogleIcon";
 import { formatAuthError } from "../utils/formatError";
-import {
-  Eye,
-  EyeOff,
-  CheckCircle2,
-  ChevronRight,
-  LogOut,
-  Sparkles,
-  Copy,
-  Check,
-} from "lucide-react";
+import { Eye, EyeOff, CheckCircle2 } from "lucide-react";
 
-function SignInScreen() {
+export default function SignInPage() {
   const {
     user,
     loading,
     signInWithGoogle,
     signInWithEmail,
     signInAnonymouslyUser,
-    signOutUser,
-    updateUserProfile,
   } = useAuth();
   const router = useRouter();
 
@@ -39,11 +27,10 @@ function SignInScreen() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [copiedUid, setCopiedUid] = useState(false);
 
   useEffect(() => {
     if (!loading && user) {
-      window.location.href = "/";
+      router.replace("/");
     }
   }, [user, loading, router]);
 
@@ -53,8 +40,7 @@ function SignInScreen() {
     setGoogleLoading(true);
     try {
       await signInWithGoogle();
-      setSuccessMsg("Signed in with Google!");
-      window.location.href = "/";
+      router.replace("/");
     } catch (err: unknown) {
       setError(formatAuthError(err));
       setGoogleLoading(false);
@@ -68,8 +54,7 @@ function SignInScreen() {
     setIsSubmitting(true);
     try {
       await signInWithEmail(email, password);
-      setSuccessMsg("Signed in!");
-      window.location.href = "/";
+      router.replace("/");
     } catch (err: unknown) {
       setError(formatAuthError(err));
       setIsSubmitting(false);
@@ -82,40 +67,36 @@ function SignInScreen() {
     setIsSubmitting(true);
     try {
       await signInAnonymouslyUser();
-      setSuccessMsg("Guest pass active!");
-      window.location.href = "/";
+      router.replace("/");
     } catch (err: unknown) {
       setError(formatAuthError(err));
       setIsSubmitting(false);
     }
   };
 
-  const handleCopyUid = () => {
-    if (user?.uid) {
-      navigator.clipboard.writeText(user.uid);
-      setCopiedUid(true);
-      setTimeout(() => setCopiedUid(false), 2000);
-    }
-  };
+  if (loading || user) {
+    return (
+      <div className="min-h-screen w-full bg-[#000000] text-white flex flex-col items-center justify-center space-y-3 font-mono text-xs">
+        <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-none animate-spin" />
+        <p className="text-[#888888]">Authenticating...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen w-full bg-[#000000] text-white flex flex-col justify-between relative overflow-x-hidden">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#000000] text-white flex flex-col justify-between relative box-border">
       <AuthHeader />
 
-      <main className="relative z-10 flex-1 flex flex-col md:flex-row items-center justify-between px-6 md:px-12 lg:px-20 max-w-7xl mx-auto w-full gap-8 my-4">
+      <main className="relative z-10 flex-1 flex flex-col md:flex-row items-center justify-center md:justify-between px-4 sm:px-6 md:px-10 lg:px-16 max-w-7xl mx-auto w-full gap-6 md:gap-8 my-2 sm:my-4 overflow-hidden">
         <AuthHero />
 
         {/* Right Side: Sign In Form */}
-        <div className="w-full max-w-sm space-y-6">
+        <div className="w-full max-w-sm space-y-6 mx-auto md:mx-0">
           <div className="space-y-1">
             <h1 className="text-[26px] font-bold tracking-tight text-white leading-tight">
-              {user && !user.isAnonymous ? "Account" : "Sign In"}
+              Sign In
             </h1>
-            <p className="text-xs text-[#888888]">
-              {user && !user.isAnonymous
-                ? "Manage your active session and identity."
-                : "Coding Trainer AI"}
-            </p>
+            <p className="text-xs text-[#888888]">Coding Trainer AI</p>
           </div>
 
           {/* Feedback Banners */}
@@ -132,154 +113,110 @@ function SignInScreen() {
             </div>
           )}
 
-          {user && !user.isAnonymous ? (
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-[#111111] border border-[#333333] flex items-center justify-center font-bold text-sm">
-                  {user.email ? user.email.charAt(0).toUpperCase() : "S"}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-white truncate">
-                    {user.displayName || user.email?.split("@")[0]}
-                  </p>
-                  <p className="text-xs font-mono text-[#888888] truncate">{user.email}</p>
-                </div>
+          <div className="space-y-5">
+            {/* Google OAuth Button */}
+            <button
+              onClick={handleGoogleSignIn}
+              disabled={googleLoading || loading}
+              className="w-full h-11 bg-[#161616] border border-[#222222] hover:border-[#4285F4] hover:bg-[#1f1f1f] text-white py-3 px-4 rounded-none text-xs font-semibold flex items-center justify-center gap-2.5 transition-all"
+            >
+              {googleLoading ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-none animate-spin" />
+              ) : (
+                <GoogleIcon className="w-4 h-4 shrink-0" />
+              )}
+              <span>Continue with Google</span>
+            </button>
+
+            {/* Mode Bar */}
+            <div className="grid grid-cols-3 p-0.5 bg-[#0a0a0a] border border-[#222222] rounded-none text-xs">
+              <Link
+                href="/auth/signin"
+                className="py-2 rounded-none font-semibold text-center transition-all bg-white text-black"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/auth/signup"
+                className="py-2 rounded-none font-medium text-center transition-all text-[#888888] hover:text-white"
+              >
+                Sign Up
+              </Link>
+              <Link
+                href="/auth/forgot"
+                className="py-2 rounded-none font-medium text-center transition-all text-[#888888] hover:text-white"
+              >
+                Reset
+              </Link>
+            </div>
+
+            <form onSubmit={handleSignInSubmit} className="space-y-3.5">
+              <div className="space-y-1">
+                <label className="text-xs text-[#888888] block">Email</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  className="w-full h-11 bg-[#0d0d0d] border border-[#2a2a2a] focus:border-[#0070f3] focus:outline-none text-white rounded-none py-3 px-3.5 text-xs font-mono transition-colors"
+                />
               </div>
 
-              <div className="pt-2 text-xs space-y-1.5 font-mono text-[#888888]">
+              <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <span>UID:</span>
-                  <button onClick={handleCopyUid} className="text-white hover:underline flex items-center gap-1">
-                    <span className="truncate max-w-[120px]">{user.uid}</span>
-                    {copiedUid ? <Check className="w-3 h-3 text-[#0070f3]" /> : <Copy className="w-3 h-3" />}
+                  <label className="text-xs text-[#888888] block">Password</label>
+                  <Link
+                    href="/auth/forgot"
+                    className="text-[11px] text-[#888888] hover:text-white font-mono"
+                  >
+                    Forgot?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    minLength={6}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full h-11 bg-[#0d0d0d] border border-[#2a2a2a] focus:border-[#0070f3] focus:outline-none text-white rounded-none py-3 pl-3.5 pr-9 text-xs font-mono transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3.5 text-[#666666] hover:text-white transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
-              <div className="space-y-2.5 pt-2">
-                <Link
-                  href="/"
-                  className="w-full h-11 bg-white text-black font-semibold hover:bg-[#e5e5e5] border border-white transition-all py-3 rounded-none text-xs flex items-center justify-center gap-2"
-                >
-                  <span>Launch Workspace</span>
-                  <ChevronRight className="w-4 h-4" />
-                </Link>
-
-                <button
-                  onClick={signOutUser}
-                  className="w-full h-11 bg-[#111111] text-white font-medium hover:bg-[#1a1a1a] border border-[#2e2e2e] hover:border-[#444444] transition-all py-3 rounded-none text-xs flex items-center justify-center gap-2"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-5">
-              {/* Google OAuth Button */}
               <button
-                onClick={handleGoogleSignIn}
-                disabled={googleLoading || loading}
-                className="w-full h-11 bg-[#161616] border border-[#222222] hover:border-[#4285F4] hover:bg-[#1f1f1f] text-white py-3 px-4 rounded-none text-xs font-semibold flex items-center justify-center gap-2.5 transition-all"
+                type="submit"
+                disabled={isSubmitting || loading}
+                className="w-full h-11 bg-white text-black font-semibold hover:bg-[#e5e5e5] border border-white rounded-none text-xs flex items-center justify-center gap-2 transition-all mt-2"
               >
-                {googleLoading ? (
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-none animate-spin" />
+                {isSubmitting ? (
+                  <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-none animate-spin" />
                 ) : (
-                  <GoogleIcon className="w-4 h-4 shrink-0" />
+                  <span>Sign In</span>
                 )}
-                <span>Continue with Google</span>
               </button>
+            </form>
 
-              {/* Dedicated Route Navigation Bar */}
-              <div className="grid grid-cols-3 p-0.5 bg-[#0a0a0a] border border-[#222222] rounded-none text-xs">
-                <Link
-                  href="/auth/signin"
-                  className="py-2 rounded-none font-semibold text-center transition-all bg-white text-black"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/auth/signup"
-                  className="py-2 rounded-none font-medium text-center transition-all text-[#888888] hover:text-white"
-                >
-                  Sign Up
-                </Link>
-                <Link
-                  href="/auth/forgot"
-                  className="py-2 rounded-none font-medium text-center transition-all text-[#888888] hover:text-white"
-                >
-                  Reset
-                </Link>
-              </div>
-
-              <form onSubmit={handleSignInSubmit} className="space-y-3.5">
-                <div className="space-y-1">
-                  <label className="text-xs text-[#888888] block">Email</label>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@example.com"
-                    className="w-full h-11 bg-[#0d0d0d] border border-[#2a2a2a] focus:border-[#0070f3] focus:outline-none text-white rounded-none py-3 px-3.5 text-xs font-mono transition-colors"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs text-[#888888] block">Password</label>
-                    <Link
-                      href="/auth/forgot"
-                      className="text-[11px] text-[#888888] hover:text-white font-mono"
-                    >
-                      Forgot?
-                    </Link>
-                  </div>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      required
-                      minLength={6}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••••••"
-                      className="w-full h-11 bg-[#0d0d0d] border border-[#2a2a2a] focus:border-[#0070f3] focus:outline-none text-white rounded-none py-3 pl-3.5 pr-9 text-xs font-mono transition-colors"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3.5 text-[#666666] hover:text-white transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting || loading}
-                  className="w-full h-11 bg-white text-black font-semibold hover:bg-[#e5e5e5] border border-white rounded-none text-xs flex items-center justify-center gap-2 transition-all mt-2"
-                >
-                  {isSubmitting ? (
-                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-none animate-spin" />
-                  ) : (
-                    <span>Sign In</span>
-                  )}
-                </button>
-              </form>
-
-              <div className="pt-2 border-t border-[#222222] flex items-center justify-end text-xs">
-                <button
-                  type="button"
-                  onClick={handleGuestSignIn}
-                  disabled={isSubmitting}
-                  className="text-white hover:underline flex items-center font-mono text-[11px]"
-                >
-                  <span>Continue as Guest →</span>
-                </button>
-              </div>
+            <div className="pt-2 border-t border-[#222222] flex items-center justify-end text-xs">
+              <button
+                type="button"
+                onClick={handleGuestSignIn}
+                disabled={isSubmitting}
+                className="text-white hover:underline flex items-center font-mono text-[11px]"
+              >
+                <span>Continue as Guest →</span>
+              </button>
             </div>
-          )}
+          </div>
         </div>
       </main>
 
@@ -287,15 +224,5 @@ function SignInScreen() {
         <p>Coding Trainer AI</p>
       </footer>
     </div>
-  );
-}
-
-export default function SignInPage() {
-  return (
-    <AuthProvider>
-      <TrainerProvider>
-        <SignInScreen />
-      </TrainerProvider>
-    </AuthProvider>
   );
 }

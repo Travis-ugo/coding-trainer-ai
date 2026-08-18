@@ -66,12 +66,6 @@ function MainStudioWorkspace() {
 }
 
 export default function Page() {
-  return (
-    <AuthProvider>
-      <TrainerProvider>
-        <MainStudioWorkspace />
-      </TrainerProvider>
-    </AuthProvider>
-  );
+  return <MainStudioWorkspace />;
 }
 

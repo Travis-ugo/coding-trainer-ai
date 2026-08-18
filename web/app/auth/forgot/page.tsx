@@ -46,14 +46,14 @@ function ForgotPasswordScreen() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#000000] text-white flex flex-col justify-between relative overflow-x-hidden">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#000000] text-white flex flex-col justify-between relative box-border">
       <AuthHeader />
 
-      <main className="relative z-10 flex-1 flex flex-col md:flex-row items-center justify-between px-6 md:px-12 lg:px-20 max-w-7xl mx-auto w-full gap-8 my-4">
+      <main className="relative z-10 flex-1 flex flex-col md:flex-row items-center justify-center md:justify-between px-4 sm:px-6 md:px-10 lg:px-16 max-w-7xl mx-auto w-full gap-6 md:gap-8 my-2 sm:my-4 overflow-hidden">
         <AuthHero />
 
         {/* Right Side: Reset Password Form */}
-        <div className="w-full max-w-sm space-y-6">
+        <div className="w-full max-w-sm space-y-6 mx-auto md:mx-0">
           <div className="space-y-1">
             <h1 className="text-[26px] font-bold tracking-tight text-white leading-tight">
               {user && !user.isAnonymous ? "Account" : "Reset Password"}

@@ -25,7 +25,7 @@ import {
 
 export default function AuthHero() {
   return (
-    <div className="hidden md:flex flex-1 items-center justify-center relative p-4 min-h-[480px]">
+    <div className="hidden md:flex flex-1 items-center justify-center relative p-4 min-h-[420px] max-w-full overflow-hidden">
       {/* Floating White Tech Icons in Zero Gravity Space (z-20 layer) */}
       <div className="absolute top-4 left-4 z-20 animate-space-float-1 text-white/80">
         <Cpu className="w-5 h-5" />
@@ -88,7 +88,7 @@ export default function AuthHero() {
       <img
         src="/brain_illustration.jpg"
         alt="AI Brain Illustration"
-        className="w-full max-w-[280px] md:max-w-[320px] lg:max-w-[360px] object-contain relative z-10 pointer-events-none -translate-x-[20px]"
+        className="w-full max-w-[260px] md:max-w-[300px] lg:max-w-[340px] object-contain relative z-10 pointer-events-none"
       />
     </div>
   );
