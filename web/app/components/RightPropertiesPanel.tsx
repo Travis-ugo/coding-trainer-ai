@@ -15,7 +15,7 @@ export const RightPropertiesPanel: React.FC = () => {
     });
 
   return (
-    <aside className="w-72 bg-[#0a0a0a] border-l border-[#222222] flex flex-col h-[calc(100vh-3.5rem)] select-none shrink-0">
+    <aside className="w-72 bg-[#0a0a0a] border-l border-[#222222] flex flex-col h-[calc(100vh-3.5rem)] shrink-0">
       {/* Dashboard Inspector Header */}
       <div className="px-4 py-3 border-b border-[#222222] text-xs font-semibold text-[#888888] uppercase tracking-wider flex items-center justify-between">
         <span>Degree Metrics</span>

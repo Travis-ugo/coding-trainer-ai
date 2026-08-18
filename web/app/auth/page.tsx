@@ -30,6 +30,7 @@ function AuthBoxScreen() {
     signInWithGoogle,
     signInWithEmail,
     signUpWithEmail,
+    resetPasswordWithEmail,
     signInAnonymouslyUser,
     signOutUser,
     updateUserProfile,
@@ -37,7 +38,7 @@ function AuthBoxScreen() {
   const { analyticsData } = useTrainerContext();
 
 
-  const [activeTab, setActiveTab] = useState<"signin" | "signup">("signin");
+  const [activeTab, setActiveTab] = useState<"signin" | "signup" | "forgot">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -103,7 +104,10 @@ function AuthBoxScreen() {
     setSuccessMsg(null);
     setIsSubmitting(true);
     try {
-      if (activeTab === "signup") {
+      if (activeTab === "forgot") {
+        await resetPasswordWithEmail(email);
+        setSuccessMsg("Password reset email sent! Check your inbox to complete reset.");
+      } else if (activeTab === "signup") {
         await signUpWithEmail(email, password);
         setSuccessMsg("Account created successfully!");
       } else {
@@ -427,12 +431,13 @@ function AuthBoxScreen() {
                 </div>
 
                 {/* Auth Mode Box Tab Bar */}
-                <div className="grid grid-cols-2 p-1 bg-[#0d0d0d] border border-[#222222] rounded-none text-xs">
+                <div className="grid grid-cols-3 p-1 bg-[#0d0d0d] border border-[#222222] rounded-none text-xs">
                   <button
                     type="button"
                     onClick={() => {
                       setActiveTab("signin");
                       setError(null);
+                      setSuccessMsg(null);
                     }}
                     className={`py-2 rounded-none font-medium transition-all ${
                       activeTab === "signin"
@@ -448,6 +453,7 @@ function AuthBoxScreen() {
                     onClick={() => {
                       setActiveTab("signup");
                       setError(null);
+                      setSuccessMsg(null);
                     }}
                     className={`py-2 rounded-none font-medium transition-all ${
                       activeTab === "signup"
@@ -455,7 +461,23 @@ function AuthBoxScreen() {
                         : "text-[#888888] hover:text-white"
                     }`}
                   >
-                    Create Account
+                    Sign Up
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab("forgot");
+                      setError(null);
+                      setSuccessMsg(null);
+                    }}
+                    className={`py-2 rounded-none font-medium transition-all ${
+                      activeTab === "forgot"
+                        ? "bg-[#1f1f1f] text-white shadow-sm border border-[#333333]"
+                        : "text-[#888888] hover:text-white"
+                    }`}
+                  >
+                    Reset Pass
                   </button>
                 </div>
 
@@ -478,30 +500,47 @@ function AuthBoxScreen() {
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] text-[#a1a1a1] font-medium block">
-                      Account Password
-                    </label>
-                    <div className="relative">
-                      <Lock className="w-4 h-4 absolute left-3.5 top-3 text-[#666666]" />
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        required
-                        minLength={6}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••••••"
-                        className="w-full auth-input rounded-none py-2.5 pl-10 pr-10 text-xs font-mono"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-3 text-[#666666] hover:text-white transition-colors"
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
+                  {activeTab !== "forgot" && (
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[11px] text-[#a1a1a1] font-medium block">
+                          Account Password
+                        </label>
+                        {activeTab === "signin" && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveTab("forgot");
+                              setError(null);
+                              setSuccessMsg(null);
+                            }}
+                            className="text-[11px] text-[#0070f3] hover:underline font-mono"
+                          >
+                            Forgot password?
+                          </button>
+                        )}
+                      </div>
+                      <div className="relative">
+                        <Lock className="w-4 h-4 absolute left-3.5 top-3 text-[#666666]" />
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          required
+                          minLength={6}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="••••••••••••"
+                          className="w-full auth-input rounded-none py-2.5 pl-10 pr-10 text-xs font-mono"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-3 text-[#666666] hover:text-white transition-colors"
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   <button
                     type="submit"
@@ -510,6 +549,11 @@ function AuthBoxScreen() {
                   >
                     {isSubmitting ? (
                       <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-none animate-spin" />
+                    ) : activeTab === "forgot" ? (
+                      <>
+                        <Key className="w-4 h-4" />
+                        <span>Send Password Reset Email</span>
+                      </>
                     ) : activeTab === "signup" ? (
                       <>
                         <UserPlus className="w-4 h-4" />
@@ -522,6 +566,22 @@ function AuthBoxScreen() {
                       </>
                     )}
                   </button>
+
+                  {activeTab === "forgot" && (
+                    <div className="text-center pt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveTab("signin");
+                          setError(null);
+                          setSuccessMsg(null);
+                        }}
+                        className="text-xs text-[#888888] hover:text-white underline font-mono"
+                      >
+                        ← Back to Sign In
+                      </button>
+                    </div>
+                  )}
                 </form>
 
                 {/* Secondary Option: Guest Sign-In Button */}

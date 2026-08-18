@@ -12,7 +12,7 @@ function MainStudioWorkspace() {
   const { activeTool, setActiveTool, selectedModule, setSelectedModule } = useTrainerContext();
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#000000] overflow-hidden select-none">
+    <div className="flex flex-col h-screen w-screen bg-[#000000] overflow-hidden">
       {/* Top App Bar Toolbar */}
       <TopToolbar
         activeTool={activeTool}

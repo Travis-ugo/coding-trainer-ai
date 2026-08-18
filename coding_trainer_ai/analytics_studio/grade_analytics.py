@@ -16,30 +16,33 @@ class GradeAnalyticsEngine:
         selected_track: str = "MSc AI & Robotics",
     ) -> StudentAnalytics:
         default_topics = {
-            "py_mod_01": ("Python Syntax & Memory Models", 85.0),
-            "py_mod_02": ("Conditionals & Control Flow", 78.0),
-            "py_mod_03": ("Loops & Iterators", 72.0),
-            "py_mod_04": ("Data Structures & Hash Maps", 65.0),
-            "py_mod_05": ("Functions & Scope Rules", 70.0),
-            "dsa_two_pointers": ("DSA Two Pointers Pattern", 75.0),
-            "dsa_bfs_graphs": ("DSA BFS & Graph Traversal", 68.0),
-            "math_linear_alg": ("Math SE(3) Transformations", 72.0),
-            "math_kalman": ("1D Kalman Filter Estimation", 55.0),
-            "pytorch_autograd": ("PyTorch Autograd & Tensors", 62.0),
-            "ros2_nodes": ("ROS 2 Pub/Sub Architecture", 74.0),
-            "uk_written_exam": ("UK Written Exam Essay Mode", 71.0),
+            "py_mod_01": ("Python Syntax & Memory Models", 0.0),
+            "py_mod_02": ("Conditionals & Control Flow", 0.0),
+            "py_mod_03": ("Loops & Iterators", 0.0),
+            "py_mod_04": ("Data Structures & Hash Maps", 0.0),
+            "py_mod_05": ("Functions & Scope Rules", 0.0),
+            "dsa_two_pointers": ("DSA Two Pointers Pattern", 0.0),
+            "dsa_bfs_graphs": ("DSA BFS & Graph Traversal", 0.0),
+            "math_linear_alg": ("Math SE(3) Transformations", 0.0),
+            "math_kalman": ("1D Kalman Filter Estimation", 0.0),
+            "pytorch_autograd": ("PyTorch Autograd & Tensors", 0.0),
+            "ros2_nodes": ("ROS 2 Pub/Sub Architecture", 0.0),
+            "uk_written_exam": ("UK Written Exam Essay Mode", 0.0),
         }
 
         merged_scores = {}
         for t_id, (t_name, def_sc) in default_topics.items():
-            merged_scores[t_id] = (t_name, scores_by_topic.get(t_id, def_sc))
+            sc = scores_by_topic.get(t_id, def_sc)
+            merged_scores[t_id] = (t_name, float(sc))
 
         topic_grades = []
-        total_score = 0.0
+        attempted_scores = []
         distinction_count = 0
 
         for t_id, (t_name, pct) in merged_scores.items():
-            total_score += pct
+            if pct > 0.0:
+                attempted_scores.append(pct)
+
             if pct >= 70.0:
                 label = "Distinction"
                 color = "#22c55e"  # Green
@@ -50,9 +53,12 @@ class GradeAnalyticsEngine:
             elif pct >= 50.0:
                 label = "Pass"
                 color = "#eab308"  # Yellow
-            else:
+            elif pct > 0.0:
                 label = "Fail"
                 color = "#ef4444"  # Red
+            else:
+                label = "Unattempted"
+                color = "#666666"  # Neutral Gray
 
             topic_grades.append(
                 TopicGrade(
@@ -64,7 +70,11 @@ class GradeAnalyticsEngine:
                 )
             )
 
-        overall_pct = total_score / len(merged_scores) if merged_scores else 0.0
+        # Compute overall percentage from attempted scores if available
+        if attempted_scores:
+            overall_pct = sum(attempted_scores) / len(attempted_scores)
+        else:
+            overall_pct = 0.0
 
         if overall_pct >= 70.0:
             pred_grade = f"🏆 DISTINCTION ({overall_pct:.1f}%)"
@@ -72,8 +82,10 @@ class GradeAnalyticsEngine:
             pred_grade = f"📜 MERIT ({overall_pct:.1f}%)"
         elif overall_pct >= 50.0:
             pred_grade = f"✅ PASS ({overall_pct:.1f}%)"
-        else:
+        elif overall_pct > 0.0:
             pred_grade = f"❌ FAIL ({overall_pct:.1f}%)"
+        else:
+            pred_grade = "🆕 NOT EVALUATED YET (0.0%)"
 
         return StudentAnalytics(
             user_name=user_name,
@@ -82,7 +94,7 @@ class GradeAnalyticsEngine:
             overall_percentage=round(overall_pct, 1),
             predicted_grade=pred_grade,
             distinction_badges_count=distinction_count,
-            streak_days=14,
+            streak_days=1,
             topic_grades=topic_grades,
         )
 

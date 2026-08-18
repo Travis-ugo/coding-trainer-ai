@@ -20,7 +20,7 @@ export const TopToolbar: React.FC<TopToolbarProps> = ({
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   return (
-    <header className="h-14 bg-[#000000] border-b border-[#222222] px-5 flex items-center justify-between select-none shrink-0">
+    <header className="h-14 bg-[#000000] border-b border-[#222222] px-5 flex items-center justify-between shrink-0">
       {/* Left App Logo & Render Dashboard Breadcrumbs */}
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 bg-white text-black font-bold rounded-none flex items-center justify-center text-xs tracking-tighter">

@@ -2,34 +2,70 @@
 
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { LogIn, UserPlus, Sparkles, X, Mail, Lock, ShieldCheck } from "lucide-react";
+import { LogIn, UserPlus, Sparkles, X, Mail, Lock, ShieldCheck, KeyRound, ArrowLeft, CheckCircle2 } from "lucide-react";
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+type AuthMode = "signin" | "signup" | "forgot";
+
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail, signInAnonymouslyUser, user } = useAuth();
-  const [isSignUp, setIsSignUp] = useState(false);
+  const {
+    signInWithGoogle,
+    signInWithEmail,
+    signUpWithEmail,
+    resetPasswordWithEmail,
+    signInAnonymouslyUser,
+    user,
+  } = useAuth();
+
+  const [mode, setMode] = useState<AuthMode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccessMsg(null);
+    if (!email.trim()) {
+      setError("Please enter your registered email address.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await resetPasswordWithEmail(email.trim());
+      setSuccessMsg("Password reset link sent! Check your email inbox.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to send reset link";
+      setError(msg);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setSuccessMsg(null);
     setSubmitting(true);
     try {
-      if (isSignUp) {
+      if (mode === "forgot") {
+        await resetPasswordWithEmail(email);
+        setSuccessMsg("Password reset email sent! Check your inbox.");
+      } else if (mode === "signup") {
         await signUpWithEmail(email, password);
+        onClose();
       } else {
         await signInWithEmail(email, password);
+        onClose();
       }
-      onClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Authentication failed";
       setError(msg);
@@ -78,7 +114,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             <span>Firebase Master&apos;s Studio Identity</span>
           </div>
           <h2 className="text-lg font-bold text-white">
-            {isSignUp ? "Create MSc Student Account" : "Sign In to Coding Trainer AI"}
+            {mode === "forgot"
+              ? "Reset Account Password"
+              : mode === "signup"
+              ? "Create MSc Student Account"
+              : "Sign In to Coding Trainer AI"}
           </h2>
           <p className="text-[#888888]">
             Sync your SRS memory intervals, degree grade metrics, and syntax AST drills across devices.
@@ -97,6 +137,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         {error && (
           <div className="bg-[#7f1d1d]/30 border border-[#ef4444] text-[#ef4444] p-3 rounded-none font-mono">
             ⚠️ {error}
+          </div>
+        )}
+
+        {successMsg && (
+          <div className="bg-[#00e599]/10 border border-[#00e599]/40 text-[#00e599] p-3 rounded-none font-mono">
+            ✓ {successMsg}
           </div>
         )}
 
@@ -131,13 +177,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             href="/auth"
             className="text-[11px] text-[#0070f3] hover:underline inline-flex items-center gap-1 font-mono"
           >
-            <span>Open Dedicated Auth Screen →</span>
+            <span>Open Dedicated Auth Hub Screen →</span>
           </a>
         </div>
 
         <div className="flex items-center gap-3 my-2">
           <div className="flex-1 h-[1px] bg-[#222222]" />
-          <span className="text-[10px] text-[#666666] uppercase tracking-wider font-semibold">Or Email</span>
+          <span className="text-[10px] text-[#666666] uppercase tracking-wider font-semibold font-mono">Or Email</span>
           <div className="flex-1 h-[1px] bg-[#222222]" />
         </div>
 
@@ -158,53 +204,102 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-[#888888] font-medium block">Password</label>
-            <div className="relative">
-              <Lock className="w-3.5 h-3.5 absolute left-3 top-3 text-[#666666]" />
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••••"
-                className="w-full bg-[#111111] border border-[#2e2e2e] focus:border-[#0070f3] rounded-none py-2 pl-9 pr-3 text-white focus:outline-none font-mono"
-              />
+          {mode !== "forgot" && (
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <label className="text-[#888888] font-medium block">Password</label>
+                {mode === "signin" && (
+                  <button
+                    type="button"
+                    onClick={() => { setMode("forgot"); setError(null); setSuccessMsg(null); }}
+                    className="text-[11px] text-[#0070f3] hover:underline font-mono"
+                  >
+                    Forgot?
+                  </button>
+                )}
+              </div>
+              <div className="relative">
+                <Lock className="w-3.5 h-3.5 absolute left-3 top-3 text-[#666666]" />
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="w-full bg-[#111111] border border-[#2e2e2e] focus:border-[#0070f3] rounded-none py-2 pl-9 pr-3 text-white focus:outline-none font-mono"
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           <button
             type="submit"
             disabled={submitting}
             className="w-full btn-next-primary py-2.5 rounded-none text-xs font-semibold flex items-center justify-center gap-2 mt-4"
           >
-            {isSignUp ? <UserPlus className="w-3.5 h-3.5" /> : <LogIn className="w-3.5 h-3.5" />}
-            <span>{isSignUp ? "Create Student Account" : "Sign In with Email"}</span>
+            {submitting ? (
+              <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-none animate-spin" />
+            ) : mode === "forgot" ? (
+              <>
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>Send Reset Link</span>
+              </>
+            ) : mode === "signup" ? (
+              <>
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Create Student Account</span>
+              </>
+            ) : (
+              <>
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Sign In with Email</span>
+              </>
+            )}
           </button>
         </form>
 
         {/* Modal Footer & Mode Toggles */}
-        <div className="pt-2 border-t border-[#222222] flex items-center justify-between text-[11px]">
-          <button
-            type="button"
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="text-[#0070f3] hover:underline"
-          >
-            {isSignUp ? "Already have an account? Sign In" : "Need an account? Sign Up"}
-          </button>
+        <div className="pt-3 border-t border-[#222222] flex items-center justify-between text-[11px]">
+          {mode === "forgot" ? (
+            <button
+              type="button"
+              onClick={() => {
+                setMode("signin");
+                setError(null);
+                setSuccessMsg(null);
+              }}
+              className="text-[#0070f3] hover:underline flex items-center gap-1 font-mono font-medium"
+            >
+              <ArrowLeft className="w-3 h-3" />
+              <span>Back to Sign In</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setMode(mode === "signup" ? "signin" : "signup");
+                setError(null);
+                setSuccessMsg(null);
+              }}
+              className="text-[#0070f3] hover:underline font-mono"
+            >
+              {mode === "signup" ? "Already registered? Sign In" : "Need an account? Create one"}
+            </button>
+          )}
 
           <button
             type="button"
             onClick={handleGuestSignIn}
-            className="text-[#888888] hover:text-white flex items-center gap-1"
+            className="text-[#888888] hover:text-white flex items-center gap-1 font-mono"
           >
             <Sparkles className="w-3 h-3 text-[#00e599]" />
-            <span>Continue as Guest</span>
+            <span>Guest Pass</span>
           </button>
         </div>
       </div>
     </div>
   );
 };
+
 

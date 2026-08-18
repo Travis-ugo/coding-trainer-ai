@@ -7,6 +7,7 @@ import {
   signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
   signInAnonymously,
   signOut,
   updateProfile,
@@ -20,6 +21,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (e: string, p: string) => Promise<void>;
   signUpWithEmail: (e: string, p: string) => Promise<void>;
+  resetPasswordWithEmail: (e: string) => Promise<void>;
   signInAnonymouslyUser: () => Promise<void>;
   signOutUser: () => Promise<void>;
   updateUserProfile: (photoURL: string, displayName?: string) => Promise<void>;
@@ -113,6 +115,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const resetPasswordWithEmail = async (email: string) => {
+    setLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const signInAnonymouslyUser = async () => {
     setLoading(true);
     try {
@@ -163,6 +174,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signInWithGoogle,
         signInWithEmail,
         signUpWithEmail,
+        resetPasswordWithEmail,
         signInAnonymouslyUser,
         signOutUser,
         updateUserProfile,
